@@ -82,8 +82,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install PostgreSQL client tools
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Install PostgreSQL and Redis client tools
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client redis-tools
 
       - name: Clean up existing containers
         run: |
