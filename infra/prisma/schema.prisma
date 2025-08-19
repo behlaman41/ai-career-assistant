@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+
+  resumes         Resume[]
+  documents       Document[]
+  jobDescriptions JobDescription[]
+  runs            Run[]
+  logs            AuditLog[]
+}
+
+model Document {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  type      DocumentType
+  storageKey String
+  mime      String
+  sha256    String
+  createdAt DateTime @default(now())
+
+  chunks           Chunk[]
+  resumes          Resume[]
+  resumeVersions   ResumeVersion[]
+  jobDescriptions  JobDescription[]
+
+  @@unique([userId, sha256])
+}
+
+model Resume {
+  id               String           @id @default(uuid())
+  user             User             @relation(fields: [userId], references: [id])
+  userId           String
+  title            String
+  sourceDocument   Document         @relation(fields: [sourceDocumentId], references: [id])
+  sourceDocumentId String
+  createdAt        DateTime         @default(now())
+
+  versions         ResumeVersion[]
+}
+
+model ResumeVersion {
+  id            String    @id @default(uuid())
+  resume        Resume    @relation(fields: [resumeId], references: [id])
+  resumeId      String
+  label         String
+  document      Document   @relation(fields: [documentId], references: [id])
+  documentId    String
+  parsedJson    Json
+  baseVersion   ResumeVersion? @relation("ResumeBaseVersion", fields: [baseVersionId], references: [id])
+  baseVersionId String?
+  derivedVersions ResumeVersion[] @relation("ResumeBaseVersion")
+  createdAt     DateTime  @default(now())
+
+  runs          Run[]
+}
+
+model JobDescription {
+  id               String   @id @default(uuid())
+  user             User     @relation(fields: [userId], references: [id])
+  userId           String
+  title            String
+  company          String
+  sourceDocument   Document @relation(fields: [sourceDocumentId], references: [id])
+  sourceDocumentId String
+  parsedJson       Json
+  createdAt        DateTime @default(now())
+
+  runs             Run[]
+}
+
+model Chunk {
+  id         String    @id @default(uuid())
+  document   Document  @relation(fields: [documentId], references: [id])
+  documentId String
+  kind       ChunkKind
+  seq        Int
+  text       String
+  tokens     Int
+  embedding  Unsupported("vector(1536)")
+
+  @@index([documentId, kind, seq])
+}
+
+model Run {
+  id               String      @id @default(uuid())
+  user             User        @relation(fields: [userId], references: [id])
+  userId           String
+  jd               JobDescription   @relation(fields: [jdId], references: [id])
+  jdId             String
+  resumeVersion    ResumeVersion    @relation(fields: [resumeVersionId], references: [id])
+  resumeVersionId  String
+  status           RunStatus  @default(queued)
+  startedAt        DateTime? 
+  finishedAt       DateTime? 
+  costCents        Int?
+
+  outputs          RunOutput[]
+
+  @@index([userId, status])
+}
+
+model RunOutput {
+  id         String      @id @default(uuid())
+  run        Run         @relation(fields: [runId], references: [id])
+  runId      String
+  type       RunOutputType
+  json       Json
+  storageKey String?
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  action    String
+  meta      Json
+  createdAt DateTime @default(now())
+}
+
+enum DocumentType {
+  resume
+  jd
+  export
+}
+
+enum ChunkKind {
+  resume
+  jd
+}
+
+enum RunStatus {
+  queued
+  processing
+  done
+  failed
+}
+
+enum RunOutputType {
+  tailored_resume
+  skills
+  qa
+  scorecard
+}
+
+// pgvector
+/// @TypeGraphQL.type("Vector")
+/// @Zorm.type("Vector")
+// Prisma vector support via schema extension
+// Refer to extension - this assumes Prisma supports Vector type via preview feature or generator
+// For simplicity in this phase, we can model as Bytes if direct Vector not supported; but here we keep Vector for clarity
+// In actual migration, we will create column as vector(1536) and index using raw SQL migrations

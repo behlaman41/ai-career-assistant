@@ -1,0 +1,27 @@
+{
+  "name": "@ai-career/infra",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch seed.ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "db:migrate": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "seed": "tsx seed.ts",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.15.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "prisma": "^5.15.0",
+    "tsx": "^4.15.6",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,161 @@
+// Reuse the infra schema by referencing the same models
+// For monorepo simplicity, we point prisma to the same schema file via symlink-like reference comment.
+// However, Prisma CLI works with a single schema per package, so we duplicate for now to ensure prisma generate works.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Include the same model definitions as infra/prisma/schema.prisma
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+
+  resumes         Resume[]        @relation("UserResumes")
+  documents       Document[]      @relation("UserDocuments")
+  jobDescriptions JobDescription[] @relation("UserJobDescriptions")
+  runs            Run[]
+  logs            AuditLog[]
+}
+
+model Document {
+  id        String   @id @default(uuid())
+  user      User     @relation("UserDocuments", fields: [userId], references: [id])
+  userId    String
+  type      DocumentType
+  storageKey String
+  mime      String
+  sha256    String
+  createdAt DateTime @default(now())
+
+  chunks             Chunk[]
+  resumeSource       Resume[] @relation("ResumeSourceDocument")
+  resumeVersionDoc   ResumeVersion[] @relation("ResumeVersionDocument")
+  jobDescriptionDoc  JobDescription[] @relation("JobDescriptionSourceDocument")
+
+  @@unique([userId, sha256])
+}
+
+model Resume {
+  id               String           @id @default(uuid())
+  user             User             @relation("UserResumes", fields: [userId], references: [id])
+  userId           String
+  title            String
+  sourceDocument   Document         @relation("ResumeSourceDocument", fields: [sourceDocumentId], references: [id])
+  sourceDocumentId String
+  createdAt        DateTime         @default(now())
+
+  versions         ResumeVersion[]
+}
+
+model ResumeVersion {
+  id            String    @id @default(uuid())
+  resume        Resume    @relation(fields: [resumeId], references: [id])
+  resumeId      String
+  label         String
+  document      Document   @relation("ResumeVersionDocument", fields: [documentId], references: [id])
+  documentId    String
+  parsedJson    Json
+  baseVersion   ResumeVersion? @relation("ResumeBaseVersion", fields: [baseVersionId], references: [id])
+  baseVersionId String?
+  createdAt     DateTime  @default(now())
+
+  childVersions ResumeVersion[] @relation("ResumeBaseVersion")
+  runs          Run[]
+}
+
+model JobDescription {
+  id               String   @id @default(uuid())
+  user             User     @relation("UserJobDescriptions", fields: [userId], references: [id])
+  userId           String
+  title            String
+  company          String
+  sourceDocument   Document @relation("JobDescriptionSourceDocument", fields: [sourceDocumentId], references: [id])
+  sourceDocumentId String
+  parsedJson       Json
+  createdAt        DateTime @default(now())
+
+  runs             Run[]
+}
+
+model Chunk {
+  id         String    @id @default(uuid())
+  document   Document  @relation(fields: [documentId], references: [id])
+  documentId String
+  kind       ChunkKind
+  seq        Int
+  text       String
+  tokens     Int
+  embedding  Bytes // represent vector temporarily for client; actual DB uses pgvector
+
+  @@index([documentId, kind, seq])
+}
+
+model Run {
+  id               String      @id @default(uuid())
+  user             User        @relation(fields: [userId], references: [id])
+  userId           String
+  jd               JobDescription   @relation(fields: [jdId], references: [id])
+  jdId             String
+  resumeVersion    ResumeVersion    @relation(fields: [resumeVersionId], references: [id])
+  resumeVersionId  String
+  status           RunStatus  @default(queued)
+  startedAt        DateTime? 
+  finishedAt       DateTime? 
+  costCents        Int?
+
+  outputs          RunOutput[]
+
+  @@index([userId, status])
+}
+
+model RunOutput {
+  id         String      @id @default(uuid())
+  run        Run         @relation(fields: [runId], references: [id])
+  runId      String
+  type       RunOutputType
+  json       Json
+  storageKey String?
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  action    String
+  meta      Json
+  createdAt DateTime @default(now())
+}
+
+enum DocumentType {
+  resume
+  jd
+  export
+}
+
+enum ChunkKind {
+  resume
+  jd
+}
+
+enum RunStatus {
+  queued
+  processing
+  done
+  failed
+}
+
+enum RunOutputType {
+  tailored_resume
+  skills
+  qa
+  scorecard
+}

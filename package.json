@@ -1,0 +1,54 @@
+{
+  "name": "ai-career-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Career Assistant - Resume + JD Analyzer with RAG",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev": "pnpm docker:infra && pnpm --filter @ai-career/api start:dev",
+    "dev:full": "docker compose up -d",
+    "build": "pnpm --filter ./apps/* --filter ./packages/* --filter ./infra build",
+    "test": "pnpm --filter ./apps/* --filter ./packages/* test",
+    "test:watch": "pnpm --filter ./apps/* --filter ./packages/* test:watch",
+    "typecheck": "pnpm --filter ./apps/* --filter ./packages/* --filter ./infra typecheck",
+    "lint": "pnpm --filter ./apps/* --filter ./packages/* lint",
+    "lint:fix": "pnpm --filter ./apps/* --filter ./packages/* lint:fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:migrate": "pnpm --filter @ai-career/infra db:migrate",
+    "db:reset": "pnpm --filter @ai-career/infra db:reset",
+    "db:generate": "pnpm --filter @ai-career/infra db:generate",
+    "db:studio": "pnpm --filter @ai-career/infra db:studio",
+    "seed": "pnpm --filter @ai-career/infra seed",
+    "docker:infra": "docker compose up -d db redis minio minio-setup",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:clean": "docker compose down -v --remove-orphans && docker system prune -f",
+    "docker:logs": "docker compose logs -f",
+    "docker:restart": "docker compose restart",
+    "install:all": "pnpm install && pnpm --filter ./apps/* --filter ./packages/* --filter ./infra install",
+    "clean": "pnpm --filter ./apps/* --filter ./packages/* --filter ./infra clean",
+    "clean:all": "pnpm clean && rm -rf node_modules && pnpm docker:clean",
+    "setup": "pnpm install:all && pnpm docker:infra && pnpm db:generate && pnpm db:migrate && pnpm seed",
+    "prepare": "husky"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "husky": "^9.0.0",
+    "prettier": "^3.2.0",
+    "wait-on": "^8.0.0"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "dependencies": {
+    "minio": "^8.0.0"
+  }
+}
