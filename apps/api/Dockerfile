@@ -5,6 +5,7 @@ WORKDIR /app
 # Install dependencies only for API
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json apps/api/
+COPY apps/api/prisma apps/api/prisma
 COPY packages/shared/package.json packages/shared/
 COPY packages/providers/package.json packages/providers/
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate

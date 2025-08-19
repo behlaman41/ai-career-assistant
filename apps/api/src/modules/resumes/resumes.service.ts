@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateResume, CreateResumeVersion } from '@ai-career/shared';
+import { Injectable, NotFoundException } from '@nestjs/common';
+
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ResumesService {

@@ -3,12 +3,13 @@ import 'reflect-metadata';
 import { initializeTracing } from './common/telemetry/tracing';
 initializeTracing();
 
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './modules/app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { Logger } from 'nestjs-pino';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
+
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { AppModule } from './modules/app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });

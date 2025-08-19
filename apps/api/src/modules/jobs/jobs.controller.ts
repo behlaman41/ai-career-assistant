@@ -1,3 +1,4 @@
+import { CreateJob } from '@ai-career/shared';
 import {
   Controller,
   Get,
@@ -9,8 +10,8 @@ import {
   Request,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+
 import { JobsService } from './jobs.service';
-import { CreateJob } from '@ai-career/shared';
 
 class CreateJobDto {
   title!: string;

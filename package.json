@@ -30,6 +30,10 @@
     "clean": "pnpm --filter ./apps/* --filter ./packages/* --filter ./infra clean",
     "clean:all": "pnpm clean && rm -rf node_modules && pnpm docker:clean",
     "setup": "pnpm install:all && pnpm docker:infra && pnpm db:generate && pnpm db:migrate && pnpm seed",
+    "start:all": "pnpm docker:infra && concurrently \"pnpm start:api\" \"pnpm start:web\" \"pnpm start:workers\"",
+    "start:api": "pnpm --filter @ai-career/api start:prod",
+    "start:web": "pnpm --filter @ai-career/web dev",
+    "start:workers": "pnpm --filter @ai-career/workers start:prod",
     "prepare": "husky"
   },
   "engines": {
@@ -39,6 +43,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-conventional": "^19.0.0",
+    "concurrently": "^8.2.0",
     "husky": "^9.0.0",
     "prettier": "^3.2.0",
     "wait-on": "^8.0.0"

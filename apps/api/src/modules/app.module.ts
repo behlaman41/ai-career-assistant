@@ -1,17 +1,20 @@
+import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { BullModule } from '@nestjs/bull';
 import { LoggerModule } from 'nestjs-pino';
-import { PrismaModule } from './prisma/prisma.module';
-import { HealthModule } from './health/health.module';
-import { UsersModule } from './users/users.module';
+
+import { validateEnv } from '../config/env';
+
 import { DocumentsModule } from './documents/documents.module';
-import { ResumesModule } from './resumes/resumes.module';
+import { HealthModule } from './health/health.module';
 import { JobsModule } from './jobs/jobs.module';
-import { RunsModule } from './runs/runs.module';
+import { PrismaModule } from './prisma/prisma.module';
 import { ProvidersModule } from './providers/providers.module';
 import { QueuesModule } from './queues/queues.module';
-import { validateEnv } from '../config/env';
+import { ResumesModule } from './resumes/resumes.module';
+import { RunsModule } from './runs/runs.module';
+import { UsersModule } from './users/users.module';
+
 
 @Module({
   imports: [

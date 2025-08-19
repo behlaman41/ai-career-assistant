@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { Document, DocumentType } from '@prisma/client';
 import { ProviderRegistry } from '@ai-career/providers';
 import { CreateUploadInit, UploadInitResponse } from '@ai-career/shared';
-import { QueuesService } from '../queues/queues.service';
+import { Injectable } from '@nestjs/common';
+import { Document, DocumentType } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { QueuesService } from '../queues/queues.service';
+
 
 @Injectable()
 export class DocumentsService {

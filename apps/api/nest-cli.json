@@ -6,6 +6,7 @@
     "assets": ["**/*.!(ts)"],
     "watchAssets": true,
     "webpack": false,
+    "tsConfigPath": "tsconfig.json",
     "plugins": [
       {
         "name": "@nestjs/swagger",

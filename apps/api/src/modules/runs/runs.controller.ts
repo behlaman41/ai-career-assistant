@@ -7,8 +7,9 @@ import {
   Request,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { Request as ExpressRequest } from 'express';
+
 import { RunsService } from './runs.service';
-import { CreateRun } from '@ai-career/shared';
 
 class CreateRunDto {
   jdId!: string;
@@ -25,7 +26,7 @@ export class RunsController {
   @ApiBody({ description: 'Analysis run creation data' })
   @ApiResponse({ status: 201, description: 'Analysis run created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid request data' })
-  create(@Request() req: any, @Body() createRunDto: CreateRunDto) {
+  create(@Request() req: ExpressRequest & { user?: { id: string } }, @Body() createRunDto: CreateRunDto) {
     const userId = req.user?.id || 'temp-user-id'; // TODO: Get from auth
     return this.runsService.create(userId, createRunDto);
   }
@@ -33,7 +34,7 @@ export class RunsController {
   @Get()
   @ApiOperation({ summary: 'Get user analysis runs', description: 'Retrieve all analysis runs for a specific user' })
   @ApiResponse({ status: 200, description: 'Analysis runs retrieved successfully' })
-  findAll(@Request() req: any) {
+  findAll(@Request() req: ExpressRequest & { user?: { id: string } }) {
     const userId = req.user?.id || 'temp-user-id'; // TODO: Get from auth
     return this.runsService.findByUser(userId);
   }
@@ -43,7 +44,7 @@ export class RunsController {
   @ApiParam({ name: 'id', description: 'Run ID' })
   @ApiResponse({ status: 200, description: 'Analysis run retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Analysis run not found' })
-  findOne(@Request() req: any, @Param('id') id: string) {
+  findOne(@Request() req: ExpressRequest & { user?: { id: string } }, @Param('id') id: string) {
     const userId = req.user?.id || 'temp-user-id'; // TODO: Get from auth
     return this.runsService.findById(id, userId);
   }

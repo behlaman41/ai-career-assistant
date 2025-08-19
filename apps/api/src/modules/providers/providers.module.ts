@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
 import { ProviderRegistry } from '@ai-career/providers';
+import { Module } from '@nestjs/common';
 
 @Module({
   providers: [

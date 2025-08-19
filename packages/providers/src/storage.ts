@@ -39,7 +39,6 @@ export class MinioStorageProvider implements StorageProvider {
     endpoint: string,
     accessKey: string,
     secretKey: string,
-    useSSL = false,
   ) {
     const { hostname, port, protocol } = new URL(endpoint);
     this.client = new Client({
@@ -52,7 +51,8 @@ export class MinioStorageProvider implements StorageProvider {
   }
 
   async putObject(key: string, data: Buffer | Uint8Array | string, mime?: string): Promise<void> {
-    await this.client.putObject(this.bucket, key, data as any, undefined, { 'Content-Type': mime });
+    const bufferData = data instanceof Uint8Array ? Buffer.from(data) : data;
+    await this.client.putObject(this.bucket, key, bufferData, undefined, { 'Content-Type': mime });
   }
 
   async getObject(key: string): Promise<Buffer> {

@@ -1,5 +1,5 @@
-import { EchoLLMProvider, LLMProvider } from './llm';
 import { EmbeddingProvider, StubEmbeddingProvider } from './embedding';
+import { EchoLLMProvider, LLMProvider } from './llm';
 import { MinioStorageProvider, StorageProvider } from './storage';
 
 export interface ProviderRegistryOptions {

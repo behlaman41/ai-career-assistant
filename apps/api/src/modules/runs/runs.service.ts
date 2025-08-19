@@ -1,7 +1,9 @@
+import { CreateRun, GetRunResponse, RunStatusEnum, RunOutputTypeEnum } from '@ai-career/shared';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { RunStatus, Prisma } from '@prisma/client';
+import { z } from 'zod';
+
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateRun, GetRunResponse } from '@ai-career/shared';
-import { RunStatus } from '@prisma/client';
 import { QueuesService } from '../queues/queues.service';
 
 @Injectable()
@@ -76,9 +78,9 @@ export class RunsService {
 
     return {
       id: run.id,
-      status: run.status as any,
+      status: run.status as z.infer<typeof RunStatusEnum>,
       outputs: run.outputs?.map(output => ({
-        type: output.type as any,
+        type: output.type as z.infer<typeof RunOutputTypeEnum>,
         json: output.json,
         storageKey: output.storageKey || undefined,
       })),
@@ -102,7 +104,7 @@ export class RunsService {
   }
 
   async updateStatus(id: string, status: RunStatus, startedAt?: Date, finishedAt?: Date) {
-    const data: any = { status };
+    const data: { status: RunStatus; startedAt?: Date; finishedAt?: Date } = { status };
     if (startedAt) data.startedAt = startedAt;
     if (finishedAt) data.finishedAt = finishedAt;
 
@@ -112,11 +114,11 @@ export class RunsService {
     });
   }
 
-  async addOutput(runId: string, type: string, json: any, storageKey?: string) {
+  async addOutput(runId: string, type: string, json: Prisma.InputJsonValue, storageKey?: string) {
     return this.prisma.runOutput.create({
       data: {
         runId,
-        type: type as any,
+        type: type as z.infer<typeof RunOutputTypeEnum>,
         json,
         storageKey,
       },

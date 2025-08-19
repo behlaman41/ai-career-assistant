@@ -1,3 +1,4 @@
+import { CreateResume, CreateResumeVersion } from '@ai-career/shared';
 import {
   Controller,
   Get,
@@ -9,8 +10,8 @@ import {
   Request,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
+
 import { ResumesService } from './resumes.service';
-import { CreateResume, CreateResumeVersion } from '@ai-career/shared';
 
 class CreateResumeDto {
   title!: string;

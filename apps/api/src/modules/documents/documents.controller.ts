@@ -1,8 +1,9 @@
+import { CreateUploadInit, UploadInitResponse } from '@ai-career/shared';
 import { Controller, Post, Get, Delete, Param, Body, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
-import { DocumentsService } from './documents.service';
-import { CreateUploadInit, UploadInitResponse } from '@ai-career/shared';
 import { Document } from '@prisma/client';
+
+import { DocumentsService } from './documents.service';
 import { CreateUploadInitDto } from './dto/create-upload-init.dto';
 import { UploadInitResponseDto } from './dto/upload-init-response.dto';
 
