@@ -1,9 +1,8 @@
-import { ProviderRegistry } from '@ai-career/providers';
 import { Test, TestingModule } from '@nestjs/testing';
-
 import { DocumentsController } from '../modules/documents/documents.controller';
 import { DocumentsService } from '../modules/documents/documents.service';
 import { PrismaService } from '../modules/prisma/prisma.service';
+import { ProviderRegistry } from '@ai-career/providers';
 import { QueuesService } from '../modules/queues/queues.service';
 
 describe('DocumentsController', () => {
