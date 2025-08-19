@@ -47,8 +47,8 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         // Simulate API calls
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         // Mock data
         setResumes([
           {
@@ -64,7 +64,7 @@ export default function DashboardPage() {
             lastModified: '2024-01-10',
           },
         ]);
-        
+
         setJobs([
           {
             id: '1',
@@ -83,7 +83,7 @@ export default function DashboardPage() {
             lastRun: '2024-01-12',
           },
         ]);
-        
+
         setRecentRuns([
           {
             id: '1',
@@ -108,7 +108,7 @@ export default function DashboardPage() {
         setIsLoading(false);
       }
     };
-    
+
     fetchData();
   }, []);
 
@@ -175,12 +175,8 @@ export default function DashboardPage() {
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Total Resumes
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {resumes.length}
-                    </dd>
+                    <dt className="text-sm font-medium text-gray-500 truncate">Total Resumes</dt>
+                    <dd className="text-lg font-medium text-gray-900">{resumes.length}</dd>
                   </dl>
                 </div>
               </div>
@@ -195,11 +191,9 @@ export default function DashboardPage() {
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Active Jobs
-                    </dt>
+                    <dt className="text-sm font-medium text-gray-500 truncate">Active Jobs</dt>
                     <dd className="text-lg font-medium text-gray-900">
-                      {jobs.filter(job => job.status === 'active').length}
+                      {jobs.filter((job) => job.status === 'active').length}
                     </dd>
                   </dl>
                 </div>
@@ -215,9 +209,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Total Runs
-                    </dt>
+                    <dt className="text-sm font-medium text-gray-500 truncate">Total Runs</dt>
                     <dd className="text-lg font-medium text-gray-900">
                       {jobs.reduce((sum, job) => sum + job.runs, 0)}
                     </dd>
@@ -235,16 +227,14 @@ export default function DashboardPage() {
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Avg. Score
-                    </dt>
+                    <dt className="text-sm font-medium text-gray-500 truncate">Avg. Score</dt>
                     <dd className="text-lg font-medium text-gray-900">
                       {recentRuns.length > 0
                         ? Math.round(
-                            recentRuns.reduce((sum, run) => sum + run.score, 0) /
-                              recentRuns.length
+                            recentRuns.reduce((sum, run) => sum + run.score, 0) / recentRuns.length,
                           )
-                        : 0}%
+                        : 0}
+                      %
                     </dd>
                   </dl>
                 </div>
@@ -265,24 +255,17 @@ export default function DashboardPage() {
                   recentRuns.map((run) => (
                     <div key={run.id} className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          {run.jobTitle}
-                        </p>
+                        <p className="text-sm font-medium text-gray-900">{run.jobTitle}</p>
                         <p className="text-sm text-gray-500">{run.company}</p>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <span
-                          className={clsx(
-                            'text-lg font-semibold',
-                            getScoreColor(run.score)
-                          )}
-                        >
+                        <span className={clsx('text-lg font-semibold', getScoreColor(run.score))}>
                           {run.score}%
                         </span>
                         <span
                           className={clsx(
                             'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                            getStatusColor(run.status)
+                            getStatusColor(run.status),
                           )}
                         >
                           {run.status}
@@ -302,9 +285,7 @@ export default function DashboardPage() {
           {/* Quick Actions */}
           <div className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Quick Actions
-              </h3>
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <Link
                   href="/uploads"

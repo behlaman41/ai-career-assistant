@@ -23,12 +23,17 @@ export const CreateResumeSchema = z.object({
 });
 export type CreateResume = z.infer<typeof CreateResumeSchema>;
 
-export const CreateResumeVersionSchema = z.object({
-  documentId: z.string().uuid().optional(),
-  fromRunId: z.string().uuid().optional(),
-}).refine((data: { documentId?: string; fromRunId?: string }) => !!(data.documentId || data.fromRunId), {
-  message: 'Either documentId or fromRunId must be provided.',
-});
+export const CreateResumeVersionSchema = z
+  .object({
+    documentId: z.string().uuid().optional(),
+    fromRunId: z.string().uuid().optional(),
+  })
+  .refine(
+    (data: { documentId?: string; fromRunId?: string }) => !!(data.documentId || data.fromRunId),
+    {
+      message: 'Either documentId or fromRunId must be provided.',
+    },
+  );
 export type CreateResumeVersion = z.infer<typeof CreateResumeVersionSchema>;
 
 export const CreateJobSchema = z.object({
@@ -47,10 +52,14 @@ export type CreateRun = z.infer<typeof CreateRunSchema>;
 export const GetRunResponseSchema = z.object({
   id: z.string().uuid(),
   status: RunStatusEnum,
-  outputs: z.array(z.object({
-    type: RunOutputTypeEnum,
-    json: z.unknown(),
-    storageKey: z.string().optional(),
-  })).optional(),
+  outputs: z
+    .array(
+      z.object({
+        type: RunOutputTypeEnum,
+        json: z.unknown(),
+        storageKey: z.string().optional(),
+      }),
+    )
+    .optional(),
 });
 export type GetRunResponse = z.infer<typeof GetRunResponseSchema>;

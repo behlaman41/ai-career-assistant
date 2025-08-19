@@ -17,10 +17,10 @@ module.exports = {
     'import/order': [
       'warn',
       {
-        'alphabetize': { order: 'asc' },
+        alphabetize: { order: 'asc' },
         'newlines-between': 'always',
       },
     ],
   },
-  ignorePatterns: ['dist', 'build', '.next', 'node_modules']
+  ignorePatterns: ['dist', 'build', '.next', 'node_modules'],
 };

@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -18,31 +12,28 @@ export class LoggingInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<Request>();
     const response = context.switchToHttp().getResponse<Response>();
     const { method, url, body, query, params } = request;
-    
+
     // Generate or use existing request ID
-    const requestId = request.headers['x-request-id'] as string || uuidv4();
-    
+    const requestId = (request.headers['x-request-id'] as string) || uuidv4();
+
     // Add request ID to response headers
     response.setHeader('x-request-id', requestId);
-    
+
     // Add request ID to request object for use in other parts of the application
     (request as any).requestId = requestId;
-    
+
     const startTime = Date.now();
-    
-    this.logger.log(
-      `[${requestId}] ${method} ${url} - Request started`,
-      {
-        requestId,
-        method,
-        url,
-        body: this.sanitizeBody(body),
-        query,
-        params,
-        userAgent: request.headers['user-agent'],
-        ip: request.ip,
-      }
-    );
+
+    this.logger.log(`[${requestId}] ${method} ${url} - Request started`, {
+      requestId,
+      method,
+      url,
+      body: this.sanitizeBody(body),
+      query,
+      params,
+      userAgent: request.headers['user-agent'],
+      ip: request.ip,
+    });
 
     return next.handle().pipe(
       tap({
@@ -57,39 +48,36 @@ export class LoggingInterceptor implements NestInterceptor {
               statusCode: response.statusCode,
               duration,
               responseSize: JSON.stringify(data).length,
-            }
+            },
           );
         },
         error: (error) => {
           const duration = Date.now() - startTime;
-          this.logger.error(
-            `[${requestId}] ${method} ${url} - Error - ${duration}ms`,
-            {
-              requestId,
-              method,
-              url,
-              duration,
-              error: error.message,
-              stack: error.stack,
-            }
-          );
+          this.logger.error(`[${requestId}] ${method} ${url} - Error - ${duration}ms`, {
+            requestId,
+            method,
+            url,
+            duration,
+            error: error.message,
+            stack: error.stack,
+          });
         },
-      })
+      }),
     );
   }
 
   private sanitizeBody(body: any): any {
     if (!body) return body;
-    
+
     const sensitiveFields = ['password', 'token', 'secret', 'key'];
     const sanitized = { ...body };
-    
+
     for (const field of sensitiveFields) {
       if (sanitized[field]) {
         sanitized[field] = '[REDACTED]';
       }
     }
-    
+
     return sanitized;
   }
 }

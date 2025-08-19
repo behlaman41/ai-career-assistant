@@ -48,8 +48,8 @@ export default function UploadsPage() {
                   status: 'error',
                   error: error instanceof Error ? error.message : 'Upload failed',
                 }
-              : f
-          )
+              : f,
+          ),
         );
       }
     }
@@ -61,9 +61,7 @@ export default function UploadsPage() {
     // Simulate upload progress
     const updateProgress = (progress: number) => {
       setUploadedFiles((prev) =>
-        prev.map((f) =>
-          f.id === uploadFile.id ? { ...f, progress } : f
-        )
+        prev.map((f) => (f.id === uploadFile.id ? { ...f, progress } : f)),
       );
     };
 
@@ -75,11 +73,7 @@ export default function UploadsPage() {
 
     // Mark as processing
     setUploadedFiles((prev) =>
-      prev.map((f) =>
-        f.id === uploadFile.id
-          ? { ...f, status: 'processing', progress: 100 }
-          : f
-      )
+      prev.map((f) => (f.id === uploadFile.id ? { ...f, status: 'processing', progress: 100 } : f)),
     );
 
     // TODO: Implement actual upload logic
@@ -95,9 +89,7 @@ export default function UploadsPage() {
 
     // Mark as completed
     setUploadedFiles((prev) =>
-      prev.map((f) =>
-        f.id === uploadFile.id ? { ...f, status: 'completed' } : f
-      )
+      prev.map((f) => (f.id === uploadFile.id ? { ...f, status: 'completed' } : f)),
     );
   };
 
@@ -123,9 +115,7 @@ export default function UploadsPage() {
       case 'error':
         return <XMarkIcon className="h-5 w-5 text-red-500" />;
       default:
-        return (
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-        );
+        return <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>;
     }
   };
 
@@ -173,10 +163,8 @@ export default function UploadsPage() {
             {...getRootProps()}
             className={clsx(
               'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
-              isDragActive
-                ? 'border-blue-400 bg-blue-50'
-                : 'border-gray-300 hover:border-gray-400',
-              isUploading && 'cursor-not-allowed opacity-50'
+              isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400',
+              isUploading && 'cursor-not-allowed opacity-50',
             )}
           >
             <input {...getInputProps()} />
@@ -186,9 +174,7 @@ export default function UploadsPage() {
                 ? 'Drop your resume files here'
                 : 'Drag and drop your resume files here'}
             </p>
-            <p className="mt-1 text-sm text-gray-500">
-              or click to browse files
-            </p>
+            <p className="mt-1 text-sm text-gray-500">or click to browse files</p>
             <p className="mt-2 text-xs text-gray-400">
               Supported formats: PDF, DOC, DOCX (Max 10MB per file)
             </p>
@@ -199,9 +185,7 @@ export default function UploadsPage() {
         {uploadedFiles.length > 0 && (
           <div className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Uploaded Files
-              </h3>
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Uploaded Files</h3>
               <div className="space-y-4">
                 {uploadedFiles.map((file) => (
                   <div
@@ -211,20 +195,16 @@ export default function UploadsPage() {
                     <div className="flex items-center space-x-3">
                       <DocumentTextIcon className="h-8 w-8 text-gray-400" />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {file.file.name}
-                        </p>
+                        <p className="text-sm font-medium text-gray-900">{file.file.name}</p>
                         <p className="text-sm text-gray-500">
                           {(file.file.size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3">
                       <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">
-                          {getStatusText(file)}
-                        </p>
+                        <p className="text-sm font-medium text-gray-900">{getStatusText(file)}</p>
                         {file.status === 'uploading' && (
                           <div className="w-32 bg-gray-200 rounded-full h-2 mt-1">
                             <div
@@ -234,7 +214,7 @@ export default function UploadsPage() {
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         {getStatusIcon(file.status)}
                         {file.status !== 'uploading' && file.status !== 'processing' && (
@@ -250,7 +230,7 @@ export default function UploadsPage() {
                   </div>
                 ))}
               </div>
-              
+
               {uploadedFiles.some((f) => f.status === 'completed') && (
                 <div className="mt-6 pt-4 border-t border-gray-200">
                   <button

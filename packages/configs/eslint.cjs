@@ -13,7 +13,7 @@ module.exports = {
     'import/order': [
       'warn',
       {
-        'alphabetize': { order: 'asc' },
+        alphabetize: { order: 'asc' },
         'newlines-between': 'always',
       },
     ],

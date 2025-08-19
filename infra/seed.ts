@@ -7,9 +7,9 @@ config({ path: '../apps/api/.env' });
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/app'
-    }
-  }
+      url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/app',
+    },
+  },
 });
 
 async function main() {
@@ -27,11 +27,11 @@ async function main() {
 
   // Create demo documents
   const resumeDoc = await prisma.document.upsert({
-    where: { 
-      userId_sha256: { 
-        userId: user.id, 
-        sha256: '0'.repeat(64) 
-      } 
+    where: {
+      userId_sha256: {
+        userId: user.id,
+        sha256: '0'.repeat(64),
+      },
     },
     update: {},
     create: {
@@ -44,11 +44,11 @@ async function main() {
   });
 
   const jdDoc = await prisma.document.upsert({
-    where: { 
-      userId_sha256: { 
-        userId: user.id, 
-        sha256: '1'.repeat(64) 
-      } 
+    where: {
+      userId_sha256: {
+        userId: user.id,
+        sha256: '1'.repeat(64),
+      },
     },
     update: {},
     create: {

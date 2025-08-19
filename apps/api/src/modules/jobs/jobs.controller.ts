@@ -1,14 +1,5 @@
 import { CreateJob } from '@ai-career/shared';
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Request,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 
 import { JobsService } from './jobs.service';
@@ -59,11 +50,7 @@ export class JobsController {
   }
 
   @Patch(':id')
-  update(
-    @Request() req: any,
-    @Param('id') id: string,
-    @Body() updateJobDto: UpdateJobDto,
-  ) {
+  update(@Request() req: any, @Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
     const userId = req.user?.id || 'temp-user-id'; // TODO: Get from auth
     return this.jobsService.update(id, userId, updateJobDto);
   }

@@ -62,7 +62,11 @@ export class MinioStorageProvider implements StorageProvider {
     return Buffer.concat(chunks);
   }
 
-  async getSignedUrl(key: string, method: 'GET' | 'PUT' = 'PUT', expirySeconds = 60 * 10): Promise<string> {
+  async getSignedUrl(
+    key: string,
+    method: 'GET' | 'PUT' = 'PUT',
+    expirySeconds = 60 * 10,
+  ): Promise<string> {
     if (method === 'GET') {
       return this.client.presignedGetObject(this.bucket, key, expirySeconds);
     }

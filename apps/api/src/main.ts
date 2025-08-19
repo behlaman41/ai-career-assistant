@@ -29,7 +29,7 @@ async function bootstrap() {
     .addTag('runs', 'Analysis runs and results')
     .addTag('users', 'User management')
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 

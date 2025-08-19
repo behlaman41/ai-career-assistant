@@ -48,7 +48,7 @@ export default function WorkspacePage() {
   const params = useParams();
   const router = useRouter();
   const jobId = params.jobId as string;
-  
+
   const [job, setJob] = useState<Job | null>(null);
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [analysisRuns, setAnalysisRuns] = useState<AnalysisRun[]>([]);
@@ -61,7 +61,7 @@ export default function WorkspacePage() {
     // Simulate API calls
     const fetchData = async () => {
       setLoading(true);
-      
+
       // Mock job data
       const mockJob: Job = {
         id: jobId,
@@ -73,11 +73,11 @@ export default function WorkspacePage() {
           'Proficiency in React, Node.js, and TypeScript',
           'Experience with cloud platforms (AWS, Azure)',
           'Strong problem-solving skills',
-          'Bachelor\'s degree in Computer Science or related field',
+          "Bachelor's degree in Computer Science or related field",
         ],
         createdAt: '2024-01-15T10:00:00Z',
       };
-      
+
       // Mock resumes data
       const mockResumes: Resume[] = [
         {
@@ -105,7 +105,7 @@ export default function WorkspacePage() {
           status: 'analyzing',
         },
       ];
-      
+
       // Mock analysis runs
       const mockRuns: AnalysisRun[] = [
         {
@@ -130,46 +130,46 @@ export default function WorkspacePage() {
           startedAt: '2024-01-15T11:00:00Z',
         },
       ];
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       setJob(mockJob);
       setResumes(mockResumes);
       setAnalysisRuns(mockRuns);
       setLoading(false);
     };
-    
+
     fetchData();
   }, [jobId]);
 
   const runAnalysis = async () => {
     if (!selectedResume) return;
-    
+
     setIsRunningAnalysis(true);
-    
+
     // TODO: Implement actual analysis API call
     // const response = await fetch('/api/runs', {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
     //   body: JSON.stringify({ resumeId: selectedResume, jobId }),
     // });
-    
+
     // Simulate analysis
     const newRun: AnalysisRun = {
       id: `run-${Date.now()}`,
       resumeId: selectedResume,
-      resumeName: resumes.find(r => r.id === selectedResume)?.name || 'Unknown',
+      resumeName: resumes.find((r) => r.id === selectedResume)?.name || 'Unknown',
       status: 'running',
       startedAt: new Date().toISOString(),
     };
-    
-    setAnalysisRuns(prev => [newRun, ...prev]);
-    
+
+    setAnalysisRuns((prev) => [newRun, ...prev]);
+
     // Simulate completion after 3 seconds
     setTimeout(() => {
-      setAnalysisRuns(prev => 
-        prev.map(run => 
-          run.id === newRun.id 
+      setAnalysisRuns((prev) =>
+        prev.map((run) =>
+          run.id === newRun.id
             ? {
                 ...run,
                 status: 'completed',
@@ -181,8 +181,8 @@ export default function WorkspacePage() {
                   'Quantify your achievements with specific metrics',
                 ],
               }
-            : run
-        )
+            : run,
+        ),
       );
       setIsRunningAnalysis(false);
     }, 3000);
@@ -302,7 +302,7 @@ export default function WorkspacePage() {
                     'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md',
                     selectedResume && !isRunningAnalysis
                       ? 'text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-                      : 'text-gray-400 bg-gray-200 cursor-not-allowed'
+                      : 'text-gray-400 bg-gray-200 cursor-not-allowed',
                   )}
                 >
                   {isRunningAnalysis ? (
@@ -334,15 +334,13 @@ export default function WorkspacePage() {
                         <div className="flex items-center space-x-3">
                           {getStatusIcon(run.status)}
                           <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {run.resumeName}
-                            </p>
+                            <p className="text-sm font-medium text-gray-900">{run.resumeName}</p>
                             <p className="text-sm text-gray-500">
                               Started {new Date(run.startedAt).toLocaleString()}
                             </p>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-4">
                           {run.score && (
                             <div className="text-right">
@@ -352,7 +350,7 @@ export default function WorkspacePage() {
                               </p>
                             </div>
                           )}
-                          
+
                           {run.status === 'completed' && (
                             <div className="flex space-x-2">
                               <button className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
@@ -367,13 +365,16 @@ export default function WorkspacePage() {
                           )}
                         </div>
                       </div>
-                      
+
                       {run.suggestions && run.suggestions.length > 0 && (
                         <div className="mt-4">
                           <h4 className="text-sm font-medium text-gray-900 mb-2">Suggestions:</h4>
                           <ul className="space-y-1">
                             {run.suggestions.map((suggestion, index) => (
-                              <li key={index} className="text-sm text-gray-600 flex items-start space-x-2">
+                              <li
+                                key={index}
+                                className="text-sm text-gray-600 flex items-start space-x-2"
+                              >
                                 <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
                                 <span>{suggestion}</span>
                               </li>

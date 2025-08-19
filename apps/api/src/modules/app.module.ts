@@ -15,7 +15,6 @@ import { ResumesModule } from './resumes/resumes.module';
 import { RunsModule } from './runs/runs.module';
 import { UsersModule } from './users/users.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({

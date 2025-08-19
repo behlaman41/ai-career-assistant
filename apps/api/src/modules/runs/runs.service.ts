@@ -79,7 +79,7 @@ export class RunsService {
     return {
       id: run.id,
       status: run.status as z.infer<typeof RunStatusEnum>,
-      outputs: run.outputs?.map(output => ({
+      outputs: run.outputs?.map((output) => ({
         type: output.type as z.infer<typeof RunOutputTypeEnum>,
         json: output.json,
         storageKey: output.storageKey || undefined,

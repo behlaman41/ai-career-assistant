@@ -7,7 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import { QueuesService } from '../queues/queues.service';
 
-
 @Injectable()
 export class DocumentsService {
   constructor(
@@ -39,7 +38,7 @@ export class DocumentsService {
     // Create new document record
     const documentId = uuidv4();
     const storageKey = `documents/${userId}/${documentId}`;
-    
+
     const document = await this.prisma.document.create({
       data: {
         id: documentId,

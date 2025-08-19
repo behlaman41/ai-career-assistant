@@ -22,13 +22,13 @@ export class ParseProcessor {
   async handleParse(job: Job<ParseJobData>) {
     const { documentId, userId, filePath, mimeType } = job.data;
     const startTime = Date.now();
-    
+
     this.logger.logJobStart('parse', job.id, { documentId, mimeType });
-    
+
     try {
       // Fetch document from storage
       const fileBuffer = await this.providers.storage.getObject(filePath);
-      
+
       // Parse document based on MIME type
       let content: string;
       if (mimeType === 'text/plain') {
@@ -39,19 +39,22 @@ export class ParseProcessor {
       } else {
         content = `Unsupported file type: ${mimeType}`;
       }
-      
+
       // TODO: Save parsed content to database
       // TODO: Queue embedding job for the parsed content
-      
+
       const duration = Date.now() - startTime;
       const result = {
         documentId,
         content,
         status: 'completed',
       };
-      
-      this.logger.logJobComplete('parse', job.id, duration, { documentId, contentLength: content.length });
-      
+
+      this.logger.logJobComplete('parse', job.id, duration, {
+        documentId,
+        contentLength: content.length,
+      });
+
       return result;
     } catch (error) {
       const duration = Date.now() - startTime;

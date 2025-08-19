@@ -1,14 +1,5 @@
 import { CreateResume, CreateResumeVersion } from '@ai-career/shared';
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Request,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
 
 import { ResumesService } from './resumes.service';
@@ -33,7 +24,10 @@ export class ResumesController {
   constructor(private readonly resumesService: ResumesService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create resume', description: 'Create a new resume from an uploaded document' })
+  @ApiOperation({
+    summary: 'Create resume',
+    description: 'Create a new resume from an uploaded document',
+  })
   @ApiBody({ description: 'Resume creation data' })
   @ApiResponse({ status: 201, description: 'Resume created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid request data' })
@@ -43,7 +37,10 @@ export class ResumesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get user resumes', description: 'Retrieve all resumes for a specific user' })
+  @ApiOperation({
+    summary: 'Get user resumes',
+    description: 'Retrieve all resumes for a specific user',
+  })
   @ApiResponse({ status: 200, description: 'Resumes retrieved successfully' })
   findAll(@Request() req: any) {
     const userId = req.user?.id || 'temp-user-id'; // TODO: Get from auth
@@ -51,7 +48,10 @@ export class ResumesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get resume by ID', description: 'Retrieve a specific resume with its versions' })
+  @ApiOperation({
+    summary: 'Get resume by ID',
+    description: 'Retrieve a specific resume with its versions',
+  })
   @ApiParam({ name: 'id', description: 'Resume ID' })
   @ApiResponse({ status: 200, description: 'Resume retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Resume not found' })
@@ -61,7 +61,10 @@ export class ResumesController {
   }
 
   @Post(':id/versions')
-  @ApiOperation({ summary: 'Create resume version', description: 'Create a new version of an existing resume' })
+  @ApiOperation({
+    summary: 'Create resume version',
+    description: 'Create a new version of an existing resume',
+  })
   @ApiParam({ name: 'id', description: 'Resume ID' })
   @ApiBody({ description: 'Resume version creation data' })
   @ApiResponse({ status: 201, description: 'Resume version created successfully' })
@@ -81,11 +84,7 @@ export class ResumesController {
   @ApiBody({ description: 'Resume update data' })
   @ApiResponse({ status: 200, description: 'Resume updated successfully' })
   @ApiResponse({ status: 404, description: 'Resume not found' })
-  update(
-    @Request() req: any,
-    @Param('id') id: string,
-    @Body() updateResumeDto: UpdateResumeDto,
-  ) {
+  update(@Request() req: any, @Param('id') id: string, @Body() updateResumeDto: UpdateResumeDto) {
     const userId = req.user?.id || 'temp-user-id'; // TODO: Get from auth
     return this.resumesService.update(id, userId, updateResumeDto);
   }

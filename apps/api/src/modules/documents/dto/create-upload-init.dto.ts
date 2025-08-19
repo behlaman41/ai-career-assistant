@@ -4,7 +4,7 @@ import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 export class CreateUploadInitDto {
   @ApiProperty({
     description: 'Name of the file to upload',
-    example: 'resume.pdf'
+    example: 'resume.pdf',
   })
   @IsString()
   @IsNotEmpty()
@@ -12,7 +12,7 @@ export class CreateUploadInitDto {
 
   @ApiProperty({
     description: 'MIME type of the file',
-    example: 'application/pdf'
+    example: 'application/pdf',
   })
   @IsString()
   @IsNotEmpty()
@@ -20,7 +20,7 @@ export class CreateUploadInitDto {
 
   @ApiProperty({
     description: 'Size of the file in bytes',
-    example: 1024000
+    example: 1024000,
   })
   @IsOptional()
   fileSize?: number;

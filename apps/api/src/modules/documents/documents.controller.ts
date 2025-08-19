@@ -13,10 +13,17 @@ export class DocumentsController {
   constructor(private documentsService: DocumentsService) {}
 
   @Post('uploads/init')
-  @ApiOperation({ summary: 'Initialize file upload', description: 'Get a signed URL for uploading a document' })
+  @ApiOperation({
+    summary: 'Initialize file upload',
+    description: 'Get a signed URL for uploading a document',
+  })
   @ApiBody({ type: CreateUploadInitDto })
   @ApiQuery({ name: 'userId', description: 'User ID (temporary until auth is implemented)' })
-  @ApiResponse({ status: 201, description: 'Upload initialized successfully', type: UploadInitResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Upload initialized successfully',
+    type: UploadInitResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Invalid request data' })
   async initUpload(
     @Body() createUploadInit: CreateUploadInit,
@@ -26,7 +33,10 @@ export class DocumentsController {
   }
 
   @Get('documents')
-  @ApiOperation({ summary: 'Get user documents', description: 'Retrieve all documents for a specific user' })
+  @ApiOperation({
+    summary: 'Get user documents',
+    description: 'Retrieve all documents for a specific user',
+  })
   @ApiQuery({ name: 'userId', description: 'User ID (temporary until auth is implemented)' })
   @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
   async findByUser(
@@ -36,7 +46,10 @@ export class DocumentsController {
   }
 
   @Get('documents/:id')
-  @ApiOperation({ summary: 'Get document by ID', description: 'Retrieve a specific document by its ID' })
+  @ApiOperation({
+    summary: 'Get document by ID',
+    description: 'Retrieve a specific document by its ID',
+  })
   @ApiParam({ name: 'id', description: 'Document ID' })
   @ApiResponse({ status: 200, description: 'Document retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
@@ -45,7 +58,10 @@ export class DocumentsController {
   }
 
   @Delete('documents/:id')
-  @ApiOperation({ summary: 'Delete document', description: 'Delete a document and its associated files' })
+  @ApiOperation({
+    summary: 'Delete document',
+    description: 'Delete a document and its associated files',
+  })
   @ApiParam({ name: 'id', description: 'Document ID' })
   @ApiResponse({ status: 200, description: 'Document deleted successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })

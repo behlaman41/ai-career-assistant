@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  
+
   const {
     register,
     handleSubmit,
@@ -28,10 +28,10 @@ export default function LoginPage() {
     try {
       // TODO: Implement authentication logic
       console.log('Login attempt:', data);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Redirect to dashboard on success
       router.push('/dashboard');
     } catch (error) {
@@ -54,7 +54,7 @@ export default function LoginPage() {
             Optimize your resume for any job opportunity
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div>
@@ -73,15 +73,13 @@ export default function LoginPage() {
                 autoComplete="email"
                 className={clsx(
                   'mt-1 appearance-none relative block w-full px-3 py-2 border rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm',
-                  errors.email ? 'border-red-300' : 'border-gray-300'
+                  errors.email ? 'border-red-300' : 'border-gray-300',
                 )}
                 placeholder="Enter your email"
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
             </div>
-            
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
@@ -99,7 +97,7 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   className={clsx(
                     'appearance-none relative block w-full px-3 py-2 pr-10 border rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm',
-                    errors.password ? 'border-red-300' : 'border-gray-300'
+                    errors.password ? 'border-red-300' : 'border-gray-300',
                   )}
                   placeholder="Enter your password"
                 />
@@ -133,9 +131,7 @@ export default function LoginPage() {
               disabled={isLoading}
               className={clsx(
                 'group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
-                isLoading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700'
+                isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700',
               )}
             >
               {isLoading ? 'Signing in...' : 'Sign in'}

@@ -23,6 +23,7 @@ ai-career-assistant/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js >= 20.0.0
 - pnpm >= 9.0.0
 - Docker and Docker Compose
@@ -30,11 +31,13 @@ ai-career-assistant/
 ### Setup
 
 1. **Clone and install dependencies:**
+
    ```bash
    git clone <repository-url>
    cd ai-career-assistant
    pnpm setup
    ```
+
    This command will:
    - Install all dependencies
    - Start infrastructure services (PostgreSQL, Redis, MinIO)
@@ -51,6 +54,7 @@ ai-career-assistant/
 ## 📋 Available Scripts
 
 ### Development
+
 - `pnpm dev` - Start API server with infrastructure
 - `pnpm dev:full` - Start all services including Docker containers
 - `pnpm build` - Build all packages and applications
@@ -58,6 +62,7 @@ ai-career-assistant/
 - `pnpm test:watch` - Run tests in watch mode
 
 ### Code Quality
+
 - `pnpm lint` - Lint all code
 - `pnpm lint:fix` - Fix linting issues
 - `pnpm format` - Format code with Prettier
@@ -65,6 +70,7 @@ ai-career-assistant/
 - `pnpm typecheck` - Run TypeScript type checking
 
 ### Database Management
+
 - `pnpm db:generate` - Generate Prisma client
 - `pnpm db:migrate` - Deploy database migrations
 - `pnpm db:reset` - Reset database (⚠️ destructive)
@@ -72,6 +78,7 @@ ai-career-assistant/
 - `pnpm seed` - Seed database with demo data
 
 ### Docker Management
+
 - `pnpm docker:infra` - Start infrastructure services only
 - `pnpm docker:up` - Start all Docker services
 - `pnpm docker:down` - Stop all Docker services
@@ -80,6 +87,7 @@ ai-career-assistant/
 - `pnpm docker:restart` - Restart Docker services
 
 ### Maintenance
+
 - `pnpm clean` - Clean build artifacts
 - `pnpm clean:all` - Clean everything including node_modules and Docker
 - `pnpm install:all` - Install dependencies for all packages
@@ -135,7 +143,9 @@ The application uses PostgreSQL with the following main entities:
 - **Log**: System and analysis logs
 
 ### Vector Embeddings
+
 The database supports vector embeddings using pgvector extension for:
+
 - Resume content similarity search
 - Job description matching
 - Semantic analysis
@@ -143,6 +153,7 @@ The database supports vector embeddings using pgvector extension for:
 ## 🔧 Development Workflow
 
 ### Adding New Features
+
 1. Create feature branch
 2. Develop in `apps/api` or relevant package
 3. Add tests
@@ -150,12 +161,14 @@ The database supports vector embeddings using pgvector extension for:
 5. Create pull request
 
 ### Database Changes
+
 1. Modify `infra/prisma/schema.prisma`
 2. Generate migration: `cd infra && npx prisma migrate dev --name <migration-name>`
 3. Update seed data if needed
 4. Test migration: `pnpm db:reset && pnpm seed`
 
 ### Package Development
+
 1. Work in respective package directory
 2. Use workspace dependencies: `"@ai-career/shared": "workspace:*"`
 3. Build and test: `pnpm build && pnpm test`
@@ -163,12 +176,15 @@ The database supports vector embeddings using pgvector extension for:
 ## 🐳 Docker Configuration
 
 The `docker-compose.yml` defines:
+
 - Infrastructure services (always needed)
 - API service (optional, can run locally)
 - Placeholder for future web and worker services
 
 ### Environment Variables
+
 Copy `.env.example` to `apps/api/.env` and configure:
+
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app
 REDIS_URL=redis://localhost:6379/0
@@ -184,18 +200,21 @@ NODE_ENV=development
 ### Common Issues
 
 1. **Docker services not starting:**
+
    ```bash
    pnpm docker:clean
    pnpm docker:infra
    ```
 
 2. **Database connection issues:**
+
    ```bash
    pnpm db:generate
    pnpm db:migrate
    ```
 
 3. **TypeScript errors:**
+
    ```bash
    pnpm clean
    pnpm install:all
@@ -209,6 +228,7 @@ NODE_ENV=development
    - API: 4000
 
 ### Logs and Debugging
+
 - View Docker logs: `pnpm docker:logs`
 - API logs: Check terminal output when running `pnpm dev`
 - Database queries: Use `pnpm db:studio`
