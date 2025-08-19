@@ -42,13 +42,16 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: ai_career_test
         options: >
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
 
       redis:
         image: redis:7-alpine
@@ -57,12 +60,17 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 6379:6379
 
       minio:
         image: minio/minio:latest
         env:
           MINIO_ROOT_USER: minioadmin
           MINIO_ROOT_PASSWORD: minioadmin
+        ports:
+          - 9000:9000
+          - 9001:9001
 
     steps:
       - name: Checkout code
@@ -85,32 +93,37 @@ jobs:
       - name: Install PostgreSQL client tools
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
+      - name: Clean up existing containers
+        run: |
+          docker container prune -f || true
+          docker network prune -f || true
+
       - name: Generate Prisma client
         run: pnpm db:generate
 
       - name: Wait for database to be ready
         run: |
-          timeout 60 bash -c 'until pg_isready -h postgres -p 5432 -U postgres; do sleep 2; done'
+          timeout 60 bash -c 'until pg_isready -h localhost -p 5432 -U postgres; do sleep 2; done'
 
       - name: Wait for Redis to be ready
         run: |
-          timeout 60 bash -c 'until redis-cli -h redis -p 6379 ping; do sleep 2; done'
+          timeout 60 bash -c 'until redis-cli -h localhost -p 6379 ping; do sleep 2; done'
 
       - name: Run database migrations
         run: pnpm db:migrate
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ai_career_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ai_career_test
 
       - name: Wait for MinIO and setup bucket
         run: |
           # Wait for MinIO to be ready
-          timeout 60 bash -c 'until curl -f http://minio:9000/minio/health/live; do sleep 2; done'
+          timeout 60 bash -c 'until curl -f http://localhost:9000/minio/health/live; do sleep 2; done'
           # Install MinIO client
           wget -q https://dl.min.io/client/mc/release/linux-amd64/mc
           chmod +x mc
           # Configure MinIO client with retry logic
           for i in {1..5}; do
-            if ./mc alias set local http://minio:9000 minioadmin minioadmin; then
+            if ./mc alias set local http://localhost:9000 minioadmin minioadmin; then
               break
             fi
             echo "MinIO setup attempt $i failed, retrying..."
@@ -122,9 +135,9 @@ jobs:
       - name: Run tests
         run: pnpm test
         env:
-          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ai_career_test
-          REDIS_URL: redis://redis:6379
-          MINIO_ENDPOINT: http://minio:9000
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ai_career_test
+          REDIS_URL: redis://localhost:6379
+          MINIO_ENDPOINT: http://localhost:9000
           MINIO_ACCESS_KEY: minioadmin
           MINIO_SECRET_KEY: minioadmin
           MINIO_BUCKET: ai-career-test
