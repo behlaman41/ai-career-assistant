@@ -7,12 +7,12 @@
   "scripts": {
     "dev": "pnpm docker:infra && pnpm --filter @ai-career/api start:dev",
     "dev:full": "docker compose up -d",
-    "build": "pnpm --filter ./apps/* --filter ./packages/* --filter ./infra build",
-    "test": "pnpm --filter ./apps/* --filter ./packages/* test",
-    "test:watch": "pnpm --filter ./apps/* --filter ./packages/* test:watch",
-    "typecheck": "pnpm --filter ./apps/* --filter ./packages/* --filter ./infra typecheck",
-    "lint": "pnpm --filter ./apps/* --filter ./packages/* lint",
-    "lint:fix": "pnpm --filter ./apps/* --filter ./packages/* lint:fix",
+    "build": "pnpm --filter @ai-career/api build && pnpm --filter @ai-career/web build && pnpm --filter @ai-career/workers build && pnpm --filter @ai-career/shared build && pnpm --filter @ai-career/providers build",
+    "test": "pnpm --filter @ai-career/api test && pnpm --filter @ai-career/shared test && pnpm --filter @ai-career/providers test",
+    "test:watch": "pnpm --filter @ai-career/api test:watch && pnpm --filter @ai-career/shared test:watch && pnpm --filter @ai-career/providers test:watch",
+    "typecheck": "pnpm --filter @ai-career/api typecheck && pnpm --filter @ai-career/web typecheck && pnpm --filter @ai-career/workers typecheck && pnpm --filter @ai-career/shared typecheck && pnpm --filter @ai-career/providers typecheck",
+    "lint": "pnpm --filter @ai-career/api lint && pnpm --filter @ai-career/web lint && pnpm --filter @ai-career/shared lint && pnpm --filter @ai-career/providers lint",
+    "lint:fix": "pnpm --filter @ai-career/api lint:fix && pnpm --filter @ai-career/web lint:fix && pnpm --filter @ai-career/shared lint:fix && pnpm --filter @ai-career/providers lint:fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:migrate": "pnpm --filter @ai-career/infra db:migrate",
@@ -27,7 +27,7 @@
     "docker:logs": "docker compose logs -f",
     "docker:restart": "docker compose restart",
     "install:all": "pnpm install && pnpm --filter ./apps/* --filter ./packages/* --filter ./infra install",
-    "clean": "pnpm --filter ./apps/* --filter ./packages/* --filter ./infra clean",
+    "clean": "pnpm --filter @ai-career/api clean && pnpm --filter @ai-career/web clean && pnpm --filter @ai-career/workers clean && pnpm --filter @ai-career/shared clean && pnpm --filter @ai-career/providers clean",
     "clean:all": "pnpm clean && rm -rf node_modules && pnpm docker:clean",
     "setup": "pnpm install:all && pnpm docker:infra && pnpm db:generate && pnpm db:migrate && pnpm seed",
     "start:all": "pnpm docker:infra && concurrently \"pnpm start:api\" \"pnpm start:web\" \"pnpm start:workers\"",
@@ -45,12 +45,24 @@
     "@commitlint/config-conventional": "^19.0.0",
     "concurrently": "^8.2.0",
     "husky": "^9.0.0",
+    "lint-staged": "^16.1.5",
     "prettier": "^3.2.0",
     "wait-on": "^8.0.0"
   },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
+    ]
+  },
+  "lint-staged": {
+    "apps/**/*.{ts,tsx}": [
+      "prettier --write"
+    ],
+    "packages/**/*.{ts,tsx}": [
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
     ]
   },
   "dependencies": {

@@ -1,8 +1,9 @@
+import { ProviderRegistry } from '@ai-career/providers';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { DocumentsController } from '../modules/documents/documents.controller';
 import { DocumentsService } from '../modules/documents/documents.service';
 import { PrismaService } from '../modules/prisma/prisma.service';
-import { ProviderRegistry } from '@ai-career/providers';
 import { QueuesService } from '../modules/queues/queues.service';
 
 describe('DocumentsController', () => {
@@ -73,7 +74,7 @@ describe('DocumentsController', () => {
     it('should return upload URL and document ID', async () => {
       const mockUrl = 'https://storage.example.com/upload-url';
       const mockDocumentId = '123e4567-e89b-12d3-a456-426614174000';
-      
+
       // Mock is not needed here since we're mocking the service method directly
       jest.spyOn(service, 'initUpload').mockResolvedValue({
         documentId: mockDocumentId,
@@ -85,7 +86,7 @@ describe('DocumentsController', () => {
           mime: 'application/pdf',
           sha256: 'a'.repeat(64),
         },
-        'user123'
+        'user123',
       );
 
       expect(result).toEqual({
@@ -101,7 +102,7 @@ describe('DocumentsController', () => {
     it('should handle different mime types', async () => {
       const mockUrl = 'https://storage.example.com/upload-url';
       const mockDocumentId = '123e4567-e89b-12d3-a456-426614174001';
-      
+
       // Mock is not needed here since we're mocking the service method directly
       jest.spyOn(service, 'initUpload').mockResolvedValue({
         documentId: mockDocumentId,
@@ -113,7 +114,7 @@ describe('DocumentsController', () => {
           mime: 'text/plain',
           sha256: 'b'.repeat(64),
         },
-        'user456'
+        'user456',
       );
 
       expect(result).toEqual({

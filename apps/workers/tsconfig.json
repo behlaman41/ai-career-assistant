@@ -1,25 +1,27 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2020",
+    "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
+    "noEmit": false,
     "paths": {
       "@ai-career/providers": ["../../packages/providers/src"],
-      "@ai-career/shared": ["../../packages/shared/src"]
+      "@ai-career/providers/*": ["../../packages/providers/src/*"],
+      "@ai-career/shared": ["../../packages/shared/src"],
+      "@ai-career/shared/*": ["../../packages/shared/src/*"]
     }
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

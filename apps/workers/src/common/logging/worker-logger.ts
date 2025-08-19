@@ -1,11 +1,14 @@
 import { Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
+type LogMessage = string | Record<string, unknown>;
+type JobData = Record<string, unknown> | null | undefined;
+
 export class WorkerLogger extends Logger {
   private requestId: string;
 
   constructor(context?: string, requestId?: string) {
-    super(context);
+    super(context || 'WorkerLogger');
     this.requestId = requestId || uuidv4();
   }
 
@@ -17,40 +20,40 @@ export class WorkerLogger extends Logger {
     return this.requestId;
   }
 
-  log(message: any, context?: string) {
+  log(message: LogMessage, context?: string) {
     const logMessage = this.formatMessage(message, 'LOG');
     super.log(logMessage, context || this.context);
   }
 
-  error(message: any, trace?: string, context?: string) {
+  error(message: LogMessage, trace?: string, context?: string) {
     const logMessage = this.formatMessage(message, 'ERROR');
     super.error(logMessage, trace, context || this.context);
   }
 
-  warn(message: any, context?: string) {
+  warn(message: LogMessage, context?: string) {
     const logMessage = this.formatMessage(message, 'WARN');
     super.warn(logMessage, context || this.context);
   }
 
-  debug(message: any, context?: string) {
+  debug(message: LogMessage, context?: string) {
     const logMessage = this.formatMessage(message, 'DEBUG');
     super.debug(logMessage, context || this.context);
   }
 
-  verbose(message: any, context?: string) {
+  verbose(message: LogMessage, context?: string) {
     const logMessage = this.formatMessage(message, 'VERBOSE');
     super.verbose(logMessage, context || this.context);
   }
 
-  private formatMessage(message: any, level: string): string {
+  private formatMessage(message: LogMessage, level: string): string {
     const timestamp = new Date().toISOString();
     const formattedMessage = typeof message === 'object' ? JSON.stringify(message) : message;
-    
+
     return `[${this.requestId}] [${timestamp}] [${level}] ${formattedMessage}`;
   }
 
   // Helper method for job processing
-  logJobStart(jobName: string, jobId: string | number, data?: any) {
+  logJobStart(jobName: string, jobId: string | number, data?: JobData) {
     this.log({
       event: 'job_started',
       jobName,
@@ -59,7 +62,7 @@ export class WorkerLogger extends Logger {
     });
   }
 
-  logJobComplete(jobName: string, jobId: string | number, duration: number, result?: any) {
+  logJobComplete(jobName: string, jobId: string | number, duration: number, result?: JobData) {
     this.log({
       event: 'job_completed',
       jobName,
@@ -80,23 +83,23 @@ export class WorkerLogger extends Logger {
     });
   }
 
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: JobData): JobData {
     if (!data) return data;
-    
+
     const sensitiveFields = ['password', 'token', 'secret', 'key', 'apiKey'];
-    
+
     if (typeof data === 'object') {
       const sanitized = { ...data };
-      
+
       for (const field of sensitiveFields) {
         if (sanitized[field]) {
           sanitized[field] = '[REDACTED]';
         }
       }
-      
+
       return sanitized;
     }
-    
+
     return data;
   }
 }

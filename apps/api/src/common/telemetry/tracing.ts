@@ -1,10 +1,9 @@
+import { trace, context } from '@opentelemetry/api';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 
 // Initialize OpenTelemetry SDK
 export function initializeTracing() {
-
-
   // Initialize SDK with basic configuration
   const sdk = new NodeSDK({
     instrumentations: [
@@ -23,25 +22,25 @@ export function initializeTracing() {
 
   // Start the SDK
   sdk.start();
-  
+
   console.log('OpenTelemetry initialized for ai-career-api');
-  
+
   // Graceful shutdown
   process.on('SIGTERM', () => {
-    sdk.shutdown()
+    sdk
+      .shutdown()
       .then(() => console.log('OpenTelemetry terminated'))
-      .catch((error: any) => console.log('Error terminating OpenTelemetry', error))
+      .catch((error: Error) => console.log('Error terminating OpenTelemetry', error))
       .finally(() => process.exit(0));
   });
-  
+
   return sdk;
 }
 
 // Helper function to get current trace context
 export function getCurrentTraceContext() {
-  const { trace, context } = require('@opentelemetry/api');
   const activeSpan = trace.getActiveSpan();
-  
+
   if (activeSpan) {
     const spanContext = activeSpan.spanContext();
     return {
@@ -50,15 +49,14 @@ export function getCurrentTraceContext() {
       traceFlags: spanContext.traceFlags,
     };
   }
-  
+
   return null;
 }
 
 // Helper function to create custom spans
 export function createSpan(name: string, attributes?: Record<string, string | number | boolean>) {
-  const { trace } = require('@opentelemetry/api');
   const tracer = trace.getTracer('ai-career-api');
-  
+
   return tracer.startSpan(name, {
     attributes,
   });

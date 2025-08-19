@@ -8,7 +8,12 @@
     "start": "node dist/main",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/apps/workers/src/main"
+    "start:prod": "node dist/apps/workers/src/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@ai-career/providers": "workspace:*",

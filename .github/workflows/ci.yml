@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   lint-and-typecheck:
@@ -45,6 +45,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: ai_career_test
         options: >
+          --name postgres-test
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
@@ -55,6 +56,7 @@ jobs:
       redis:
         image: redis:7-alpine
         options: >
+          --name redis-test
           --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
@@ -68,7 +70,7 @@ jobs:
           MINIO_ROOT_USER: minioadmin
           MINIO_ROOT_PASSWORD: minioadmin
         options: >
-          --name minio
+          --name minio-test
         ports:
           - 9000:9000
           - 9001:9001
@@ -91,8 +93,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install PostgreSQL client tools
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Clean up existing containers
+        run: |
+          docker container rm -f postgres-test redis-test minio-test || true
+          docker network prune -f || true
+
       - name: Generate Prisma client
         run: pnpm db:generate
+
+      - name: Wait for database to be ready
+        run: |
+          timeout 60 bash -c 'until pg_isready -h localhost -p 5432 -U postgres; do sleep 2; done'
 
       - name: Run database migrations
         run: pnpm db:migrate
@@ -104,10 +118,16 @@ jobs:
           # Wait for MinIO to be ready
           timeout 60 bash -c 'until curl -f http://localhost:9000/minio/health/live; do sleep 2; done'
           # Install MinIO client
-          wget https://dl.min.io/client/mc/release/linux-amd64/mc
+          wget -q https://dl.min.io/client/mc/release/linux-amd64/mc
           chmod +x mc
-          # Configure MinIO client
-          ./mc alias set local http://localhost:9000 minioadmin minioadmin
+          # Configure MinIO client with retry logic
+          for i in {1..5}; do
+            if ./mc alias set local http://localhost:9000 minioadmin minioadmin; then
+              break
+            fi
+            echo "MinIO setup attempt $i failed, retrying..."
+            sleep 5
+          done
           # Create test bucket
           ./mc mb local/ai-career-test || true
 
