@@ -5,7 +5,7 @@
     "deleteOutDir": true,
     "assets": ["**/*.!(ts)"],
     "watchAssets": true,
-    "webpack": false,
+    "webpack": true,
     "tsConfigPath": "tsconfig.json",
     "plugins": [
       {

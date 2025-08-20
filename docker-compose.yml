@@ -60,57 +60,6 @@ services:
       echo 'MinIO setup complete';
       "
 
-  api:
-    build:
-      context: .
-      dockerfile: ./apps/api/Dockerfile
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/app
-      REDIS_URL: redis://redis:6379/0
-      S3_ENDPOINT: http://minio:9000
-      S3_ACCESS_KEY: minioadmin
-      S3_SECRET_KEY: minioadmin
-      S3_BUCKET: files
-      NODE_ENV: development
-    ports:
-      - '4000:4000'
-    volumes:
-      - ./apps/api:/app
-      - /app/node_modules
-
-  # Note: web and workers services are commented out as they don't exist yet
-  # Uncomment and create the respective apps when needed
-
-  # workers:
-  #   build:
-  #     context: .
-  #     dockerfile: ./apps/workers/Dockerfile
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #     minio:
-  #       condition: service_healthy
-  #   environment:
-  #     DATABASE_URL: postgresql://postgres:postgres@db:5432/app
-  #     REDIS_URL: redis://redis:6379/0
-  #     S3_ENDPOINT: http://minio:9000
-  #     S3_ACCESS_KEY: minioadmin
-  #     S3_SECRET_KEY: minioadmin
-  #     S3_BUCKET: files
-  #     NODE_ENV: development
-  #   volumes:
-  #     - ./apps/workers:/app
-  #     - /app/node_modules
-
   # web:
   #   build:
   #     context: .
