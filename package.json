@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "pnpm docker:infra && pnpm --filter @ai-career/api start:dev",
     "dev:full": "docker compose up -d",
+    "dev:all": "./start-dev.sh",
     "build": "pnpm --filter @ai-career/shared build && pnpm --filter @ai-career/providers build && pnpm --filter @ai-career/configs build && pnpm --filter @ai-career/api build && pnpm --filter @ai-career/web build && pnpm --filter @ai-career/workers build",
     "test": "pnpm --filter @ai-career/api test && pnpm --filter @ai-career/shared test && pnpm --filter @ai-career/providers test",
     "test:watch": "pnpm --filter @ai-career/api test:watch && pnpm --filter @ai-career/shared test:watch && pnpm --filter @ai-career/providers test:watch",

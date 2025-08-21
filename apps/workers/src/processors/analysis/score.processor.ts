@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Job } from 'bull';
 import { ProviderRegistry } from '@ai-career/providers';
 import { WorkerLogger } from '../../common/logging/worker-logger';
+import { PrismaService } from '../../prisma/prisma.service';
 
 interface ScoreJobData {
   runId: string;
