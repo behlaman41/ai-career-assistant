@@ -8,7 +8,8 @@
     "moduleResolution": "node",
     "types": ["jest", "node"],
     "noEmit": false,
-    "declaration": true
+    "declaration": true,
+    "composite": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

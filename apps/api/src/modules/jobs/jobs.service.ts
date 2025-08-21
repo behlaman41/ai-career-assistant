@@ -1,4 +1,5 @@
 import { CreateJob } from '@ai-career/shared';
+import { assertOwnership } from '@ai-career/shared/policies';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -33,8 +34,8 @@ export class JobsService {
   }
 
   async findById(id: string, userId: string) {
-    const job = await this.prisma.jobDescription.findFirst({
-      where: { id, userId },
+    const job = await this.prisma.jobDescription.findUnique({
+      where: { id },
       include: {
         sourceDocument: true,
         runs: {
@@ -47,12 +48,14 @@ export class JobsService {
       throw new NotFoundException('Job description not found');
     }
 
+    assertOwnership(userId, job.userId);
+
     return job;
   }
 
   async update(id: string, userId: string, updateData: Partial<CreateJob>) {
-    // Verify job belongs to user
-    await this.findById(id, userId);
+    const job = await this.findById(id, userId);
+    assertOwnership(userId, job.userId);
 
     const data: any = {};
     if (updateData.title) data.title = updateData.title;
@@ -69,8 +72,8 @@ export class JobsService {
   }
 
   async delete(id: string, userId: string) {
-    // Verify job belongs to user
-    await this.findById(id, userId);
+    const job = await this.findById(id, userId);
+    assertOwnership(userId, job.userId);
 
     return this.prisma.jobDescription.delete({
       where: { id },

@@ -1,10 +1,13 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 
 import { validateEnv } from '../config/env';
 
+import { AuditModule } from './audit/audit.module';
+import { AuthModule } from './auth/auth.module';
 import { DocumentsModule } from './documents/documents.module';
 import { HealthModule } from './health/health.module';
 import { JobsModule } from './jobs/jobs.module';
@@ -37,15 +40,34 @@ import { UsersModule } from './users/users.module';
         level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
       },
     }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: () => ({
+        throttlers: [
+          {
+            ttl: 900,
+            limit: 100,
+          },
+        ],
+      }),
+    }),
     PrismaModule,
     ProvidersModule,
     QueuesModule,
     HealthModule,
     UsersModule,
+    AuthModule,
     DocumentsModule,
     ResumesModule,
     JobsModule,
     RunsModule,
+    AuditModule,
+  ],
+  providers: [
+    {
+      provide: 'APP_GUARD',
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

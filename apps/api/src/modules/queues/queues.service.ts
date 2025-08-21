@@ -23,14 +23,19 @@ export interface AnalysisJobData {
   resumeVersionId: string;
 }
 
+export interface AVScanJobData {
+  documentId: string;
+  storageKey: string;
+}
+
 @Injectable()
 export class QueuesService {
   constructor(
     @InjectQueue('ingest.parse') private parseQueue: Queue<ParseJobData>,
     @InjectQueue('ingest.embed') private embedQueue: Queue<EmbedJobData>,
     @InjectQueue('analysis.score') private analysisQueue: Queue<AnalysisJobData>,
+    @InjectQueue('security.avscan') private avscanQueue: Queue<AVScanJobData>,
   ) {}
-
   async addParseJob(data: ParseJobData, options?: any) {
     return this.parseQueue.add('parse-document', data, {
       priority: 10,
@@ -52,6 +57,12 @@ export class QueuesService {
     });
   }
 
+  async addAVScanJob(data: AVScanJobData, options?: any) {
+    return this.avscanQueue.add('scan-file', data, {
+      priority: 20,
+      ...options,
+    });
+  }
   async getParseJobStatus(jobId: string) {
     const job = await this.parseQueue.getJob(jobId);
     return job ? { id: job.id, status: await job.getState(), progress: job.progress() } : null;

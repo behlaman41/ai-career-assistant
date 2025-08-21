@@ -6,6 +6,9 @@ initializeTracing();
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { json } from 'express';
+import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -14,7 +17,12 @@ import { AppModule } from './modules/app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(app.get(Logger));
-  app.enableCors({ origin: '*', credentials: true });
+  app.use(helmet());
+  app.enableCors({
+    origin: process.env.WEB_BASE_URL || 'http://localhost:3000',
+    credentials: true,
+  });
+  app.use(json({ limit: '1mb' }));
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalInterceptors(new LoggingInterceptor());
 

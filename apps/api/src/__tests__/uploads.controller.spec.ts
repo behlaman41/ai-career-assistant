@@ -1,6 +1,7 @@
 import { ProviderRegistry } from '@ai-career/providers';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { AuditService } from '../modules/audit/audit.service';
 import { DocumentsController } from '../modules/documents/documents.controller';
 import { DocumentsService } from '../modules/documents/documents.service';
 import { PrismaService } from '../modules/prisma/prisma.service';
@@ -9,9 +10,6 @@ import { QueuesService } from '../modules/queues/queues.service';
 describe('DocumentsController', () => {
   let controller: DocumentsController;
   let service: DocumentsService;
-  let prismaService: jest.Mocked<PrismaService>;
-  let providerRegistry: jest.Mocked<ProviderRegistry>;
-  let queuesService: jest.Mocked<QueuesService>;
 
   beforeEach(async () => {
     const mockPrismaService = {
@@ -40,6 +38,10 @@ describe('DocumentsController', () => {
       addAnalysisJob: jest.fn(),
     };
 
+    const mockAuditService = {
+      log: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DocumentsController],
       providers: [
@@ -56,14 +58,15 @@ describe('DocumentsController', () => {
           provide: QueuesService,
           useValue: mockQueuesService,
         },
+        {
+          provide: AuditService,
+          useValue: mockAuditService,
+        },
       ],
     }).compile();
 
     controller = module.get<DocumentsController>(DocumentsController);
     service = module.get<DocumentsService>(DocumentsService);
-    prismaService = module.get(PrismaService);
-    providerRegistry = module.get(ProviderRegistry);
-    queuesService = module.get(QueuesService);
   });
 
   it('should be defined', () => {
@@ -85,8 +88,9 @@ describe('DocumentsController', () => {
         {
           mime: 'application/pdf',
           sha256: 'a'.repeat(64),
+          sizeBytes: 1024,
         },
-        'user123',
+        { user: { id: 'user123' } },
       );
 
       expect(result).toEqual({
@@ -96,6 +100,7 @@ describe('DocumentsController', () => {
       expect(service.initUpload).toHaveBeenCalledWith('user123', {
         mime: 'application/pdf',
         sha256: 'a'.repeat(64),
+        sizeBytes: 1024,
       });
     });
 
@@ -113,8 +118,9 @@ describe('DocumentsController', () => {
         {
           mime: 'text/plain',
           sha256: 'b'.repeat(64),
+          sizeBytes: 512,
         },
-        'user456',
+        { user: { id: 'user456' } },
       );
 
       expect(result).toEqual({

@@ -52,3 +52,4 @@ export type ChunkKind = 'resume' | 'jd';
 // Run types
 export type RunStatus = 'queued' | 'processing' | 'done' | 'failed';
 export type RunOutputType = 'tailored_resume' | 'skills' | 'qa' | 'scorecard';
+export type Role = 'user' | 'admin';

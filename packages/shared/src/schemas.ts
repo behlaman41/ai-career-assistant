@@ -8,6 +8,7 @@ export const RunOutputTypeEnum = z.enum(['tailored_resume', 'skills', 'qa', 'sco
 export const CreateUploadInitSchema = z.object({
   mime: z.string(),
   sha256: z.string().length(64),
+  sizeBytes: z.number().int().positive(),
 });
 export type CreateUploadInit = z.infer<typeof CreateUploadInitSchema>;
 

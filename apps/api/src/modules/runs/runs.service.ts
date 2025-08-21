@@ -1,4 +1,5 @@
 import { CreateRun, GetRunResponse, RunStatusEnum, RunOutputTypeEnum } from '@ai-career/shared';
+import { assertOwnership } from '@ai-career/shared/policies';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RunStatus, Prisma } from '@prisma/client';
 import { z } from 'zod';
@@ -15,24 +16,23 @@ export class RunsService {
 
   async create(userId: string, createRunDto: CreateRun) {
     // Verify job description belongs to user
-    const jd = await this.prisma.jobDescription.findFirst({
-      where: { id: createRunDto.jdId, userId },
+    const jd = await this.prisma.jobDescription.findUnique({
+      where: { id: createRunDto.jdId },
     });
     if (!jd) {
       throw new NotFoundException('Job description not found');
     }
+    assertOwnership(userId, jd.userId);
 
     // Verify resume version belongs to user
-    const resumeVersion = await this.prisma.resumeVersion.findFirst({
-      where: {
-        id: createRunDto.resumeVersionId,
-        resume: { userId },
-      },
+    const resumeVersion = await this.prisma.resumeVersion.findUnique({
+      where: { id: createRunDto.resumeVersionId },
       include: { resume: true },
     });
     if (!resumeVersion) {
       throw new NotFoundException('Resume version not found');
     }
+    assertOwnership(userId, resumeVersion.resume.userId);
 
     const run = await this.prisma.run.create({
       data: {
@@ -65,8 +65,8 @@ export class RunsService {
   }
 
   async findById(id: string, userId: string): Promise<GetRunResponse> {
-    const run = await this.prisma.run.findFirst({
-      where: { id, userId },
+    const run = await this.prisma.run.findUnique({
+      where: { id },
       include: {
         outputs: true,
       },
@@ -75,6 +75,7 @@ export class RunsService {
     if (!run) {
       throw new NotFoundException('Run not found');
     }
+    assertOwnership(userId, run.userId);
 
     return {
       id: run.id,

@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import Link from 'next/link';
 
 interface LoginForm {
   email: string;
@@ -26,18 +28,19 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     try {
-      // TODO: Implement authentication logic
-      console.log('Login attempt:', data);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Redirect to dashboard on success
-      router.push('/dashboard');
-    } catch (error) {
-      setError('root', {
-        message: 'Invalid email or password',
+      const res = await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
       });
+
+      if (res?.error) {
+        setError('root', { message: res.error });
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      setError('root', { message: 'An unexpected error occurred' });
     } finally {
       setIsLoading(false);
     }
@@ -52,6 +55,12 @@ export default function LoginPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Optimize your resume for any job opportunity
+          </p>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{' '}
+            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+              create a new account
+            </Link>
           </p>
         </div>
 

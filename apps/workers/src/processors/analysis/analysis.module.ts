@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { ProvidersModule } from '../../providers/providers.module';
 import { ScoreProcessor } from './score.processor';
+import { PrismaModule } from '../../prisma/prisma.module';
 
 @Module({
   imports: [
@@ -9,6 +10,7 @@ import { ScoreProcessor } from './score.processor';
       name: 'analysis.score',
     }),
     ProvidersModule,
+    PrismaModule,
   ],
   providers: [ScoreProcessor],
 })

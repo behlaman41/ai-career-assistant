@@ -1,4 +1,5 @@
 import { CreateResume, CreateResumeVersion } from '@ai-career/shared';
+import { assertOwnership } from '@ai-career/shared/policies';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -34,8 +35,8 @@ export class ResumesService {
   }
 
   async findById(id: string, userId: string) {
-    const resume = await this.prisma.resume.findFirst({
-      where: { id, userId },
+    const resume = await this.prisma.resume.findUnique({
+      where: { id },
       include: {
         versions: {
           orderBy: { createdAt: 'desc' },
@@ -47,12 +48,15 @@ export class ResumesService {
       throw new NotFoundException('Resume not found');
     }
 
+    assertOwnership(userId, resume.userId);
+
     return resume;
   }
 
   async createVersion(resumeId: string, userId: string, createVersionDto: CreateResumeVersion) {
     // Verify resume belongs to user
     const resume = await this.findById(resumeId, userId);
+    assertOwnership(userId, resume.userId);
 
     // Generate a label for this version
     const versionCount = await this.prisma.resumeVersion.count({
@@ -81,8 +85,8 @@ export class ResumesService {
   }
 
   async update(id: string, userId: string, updateData: Partial<CreateResume>) {
-    // Verify resume belongs to user
-    await this.findById(id, userId);
+    const resume = await this.findById(id, userId);
+    assertOwnership(userId, resume.userId);
 
     return this.prisma.resume.update({
       where: { id },
@@ -96,8 +100,8 @@ export class ResumesService {
   }
 
   async delete(id: string, userId: string) {
-    // Verify resume belongs to user
-    await this.findById(id, userId);
+    const resume = await this.findById(id, userId);
+    assertOwnership(userId, resume.userId);
 
     return this.prisma.resume.delete({
       where: { id },

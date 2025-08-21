@@ -42,6 +42,18 @@ import { QueuesService } from './queues.service';
           },
         },
       },
+      {
+        name: 'security.avscan',
+        defaultJobOptions: {
+          removeOnComplete: 10,
+          removeOnFail: 5,
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 2000,
+          },
+        },
+      },
     ),
   ],
   providers: [QueuesService],

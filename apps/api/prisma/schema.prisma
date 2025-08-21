@@ -4,7 +4,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "./node_modules/@prisma/client"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -17,6 +17,8 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String?
+  password  String?
+  role      Role     @default(user)
   createdAt DateTime @default(now())
 
   resumes         Resume[]        @relation("UserResumes")
@@ -24,6 +26,7 @@ model User {
   jobDescriptions JobDescription[] @relation("UserJobDescriptions")
   runs            Run[]
   logs            AuditLog[]
+  refreshTokens   RefreshToken[]
 }
 
 model Document {
@@ -34,6 +37,10 @@ model Document {
   storageKey String
   mime      String
   sha256    String
+  sizeBytes Int
+  meta      Json?
+  status    UploadStatus @default(pending)
+  scanResult Json?
   createdAt DateTime @default(now())
 
   chunks             Chunk[]
@@ -158,4 +165,25 @@ enum RunOutputType {
   skills
   qa
   scorecard
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum UploadStatus {
+  pending
+  scanning
+  approved
+  rejected
 }

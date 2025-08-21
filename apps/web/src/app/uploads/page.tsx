@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSessionUser } from '@/lib/auth';
 import { useDropzone } from 'react-dropzone';
 import {
   CloudArrowUpIcon,
@@ -23,73 +24,85 @@ export default function UploadsPage() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const router = useRouter();
+  const { user, session, isAuthenticated } = useSessionUser();
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const newFiles: UploadedFile[] = acceptedFiles.map((file) => ({
-      file,
-      id: Math.random().toString(36).substr(2, 9),
-      status: 'uploading',
-      progress: 0,
-    }));
+  if (!isAuthenticated) {
+    return null; // Will be redirected by useSessionUser
+  }
 
-    setUploadedFiles((prev) => [...prev, ...newFiles]);
-    setIsUploading(true);
-
-    // Process each file
-    for (const uploadFile of newFiles) {
-      try {
-        await uploadResume(uploadFile);
-      } catch (error) {
-        setUploadedFiles((prev) =>
-          prev.map((f) =>
-            f.id === uploadFile.id
-              ? {
-                  ...f,
-                  status: 'error',
-                  error: error instanceof Error ? error.message : 'Upload failed',
-                }
-              : f,
-          ),
-        );
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      const validFiles = acceptedFiles.filter((file) => file.size <= 10 * 1024 * 1024); // 10MB limit
+      if (validFiles.length < acceptedFiles.length) {
+        alert('Some files exceed the 10MB size limit and were ignored.');
       }
-    }
 
-    setIsUploading(false);
-  }, []);
+      const newFiles: UploadedFile[] = validFiles.map((file) => ({
+        file,
+        id: Math.random().toString(36).substr(2, 9),
+        status: 'uploading',
+        progress: 0,
+      }));
 
-  const uploadResume = async (uploadFile: UploadedFile) => {
-    // Simulate upload progress
-    const updateProgress = (progress: number) => {
-      setUploadedFiles((prev) =>
-        prev.map((f) => (f.id === uploadFile.id ? { ...f, progress } : f)),
-      );
-    };
+      setUploadedFiles((prev) => [...prev, ...newFiles]);
+      setIsUploading(true);
 
-    // Simulate upload
-    for (let progress = 0; progress <= 100; progress += 10) {
-      updateProgress(progress);
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
+      for (const uploadFile of newFiles) {
+        try {
+          await uploadResume(uploadFile, session?.accessToken || '');
+        } catch (error) {
+          setUploadedFiles((prev) =>
+            prev.map((f) =>
+              f.id === uploadFile.id
+                ? {
+                    ...f,
+                    status: 'error',
+                    error: error instanceof Error ? error.message : 'Upload failed',
+                  }
+                : f,
+            ),
+          );
+        }
+      }
 
-    // Mark as processing
+      setIsUploading(false);
+    },
+    [session],
+  );
+
+  const uploadResume = async (uploadFile: UploadedFile, accessToken: string) => {
+    // Init upload
+    const initResponse = await fetch('/api/documents/init-upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ filename: uploadFile.file.name, mimeType: uploadFile.file.type }),
+    });
+
+    if (!initResponse.ok) throw new Error('Failed to init upload');
+
+    const { uploadId, signedUrl } = await initResponse.json();
+
+    // Upload to signed URL
+    await fetch(signedUrl, {
+      method: 'PUT',
+      body: uploadFile.file,
+      headers: { 'Content-Type': uploadFile.file.type },
+    });
+
+    // Finalize upload
+    const finalizeResponse = await fetch(`/api/documents/finalize-upload/${uploadId}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!finalizeResponse.ok) throw new Error('Failed to finalize upload');
+
+    // Update status to completed
     setUploadedFiles((prev) =>
-      prev.map((f) => (f.id === uploadFile.id ? { ...f, status: 'processing', progress: 100 } : f)),
-    );
-
-    // TODO: Implement actual upload logic
-    // const formData = new FormData();
-    // formData.append('file', uploadFile.file);
-    // const response = await fetch('/api/uploads/init', {
-    //   method: 'POST',
-    //   body: formData,
-    // });
-
-    // Simulate processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Mark as completed
-    setUploadedFiles((prev) =>
-      prev.map((f) => (f.id === uploadFile.id ? { ...f, status: 'completed' } : f)),
+      prev.map((f) => (f.id === uploadFile.id ? { ...f, status: 'completed', progress: 100 } : f)),
     );
   };
 

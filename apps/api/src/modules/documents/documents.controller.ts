@@ -1,7 +1,10 @@
 import { CreateUploadInit, UploadInitResponse } from '@ai-career/shared';
-import { Controller, Post, Get, Delete, Param, Body, Query } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Param, Body, Query, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Document } from '@prisma/client';
+
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 
 import { DocumentsService } from './documents.service';
 import { CreateUploadInitDto } from './dto/create-upload-init.dto';
@@ -9,6 +12,8 @@ import { UploadInitResponseDto } from './dto/upload-init-response.dto';
 
 @ApiTags('documents')
 @Controller()
+@UseGuards(JwtAuthGuard)
+@Throttle({ default: { limit: 20, ttl: 900000 } })
 export class DocumentsController {
   constructor(private documentsService: DocumentsService) {}
 
@@ -27,9 +32,9 @@ export class DocumentsController {
   @ApiResponse({ status: 400, description: 'Invalid request data' })
   async initUpload(
     @Body() createUploadInit: CreateUploadInit,
-    @Query('userId') userId: string, // TODO: Replace with auth user in Phase 2
+    @Req() req: any,
   ): Promise<UploadInitResponse> {
-    return this.documentsService.initUpload(userId, createUploadInit);
+    return this.documentsService.initUpload(req.user.id, createUploadInit);
   }
 
   @Get('documents')
@@ -39,10 +44,8 @@ export class DocumentsController {
   })
   @ApiQuery({ name: 'userId', description: 'User ID (temporary until auth is implemented)' })
   @ApiResponse({ status: 200, description: 'Documents retrieved successfully' })
-  async findByUser(
-    @Query('userId') userId: string, // TODO: Replace with auth user in Phase 2
-  ): Promise<Document[]> {
-    return this.documentsService.findByUser(userId);
+  async findByUser(@Req() req: any): Promise<Document[]> {
+    return this.documentsService.findByUser(req.user.id);
   }
 
   @Get('documents/:id')
@@ -53,8 +56,8 @@ export class DocumentsController {
   @ApiParam({ name: 'id', description: 'Document ID' })
   @ApiResponse({ status: 200, description: 'Document retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
-  async findOne(@Param('id') id: string): Promise<Document | null> {
-    return this.documentsService.findById(id);
+  async findOne(@Param('id') id: string, @Req() req: any): Promise<Document | null> {
+    return this.documentsService.findById(id, req.user.id);
   }
 
   @Delete('documents/:id')
@@ -65,7 +68,20 @@ export class DocumentsController {
   @ApiParam({ name: 'id', description: 'Document ID' })
   @ApiResponse({ status: 200, description: 'Document deleted successfully' })
   @ApiResponse({ status: 404, description: 'Document not found' })
-  async remove(@Param('id') id: string): Promise<Document> {
-    return this.documentsService.delete(id);
+  async remove(@Param('id') id: string, @Req() req: any): Promise<Document> {
+    return this.documentsService.delete(id, req.user.id);
+  }
+
+  @Post('uploads/finalize/:documentId')
+  @ApiOperation({
+    summary: 'Finalize file upload',
+    description: 'Mark upload as complete and trigger processing',
+  })
+  @ApiParam({ name: 'documentId', description: 'Document ID' })
+  @ApiResponse({ status: 200, description: 'Upload finalized successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid request' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async finalizeUpload(@Param('documentId') documentId: string, @Req() req: any): Promise<void> {
+    return this.documentsService.finalizeUpload(documentId, req.user.id);
   }
 }

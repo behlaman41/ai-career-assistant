@@ -30,6 +30,17 @@ export class EmbedProcessor {
     });
 
     try {
+      // Guardrail: Check for missing content
+      if (!content || content.trim() === '') {
+        throw new Error('Missing or empty content for embedding');
+      }
+
+      // Guardrail: Check content length
+      if (content.length > 8192) {
+        // Example limit, adjust as needed
+        throw new Error('Content too large for embedding');
+      }
+
       // Generate embedding using the embedding provider
       const embeddings = await this.providers.embedding.embed([content]);
       const embedding = embeddings[0];

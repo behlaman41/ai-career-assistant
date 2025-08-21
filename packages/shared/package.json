@@ -2,9 +2,40 @@
   "name": "@ai-career/shared",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./policies": {
+      "import": "./dist/policies.js",
+      "require": "./dist/policies.js",
+      "types": "./dist/policies.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "require": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    },
+    "./dto": {
+      "import": "./dist/dto.js",
+      "require": "./dist/dto.js",
+      "types": "./dist/dto.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.js",
+      "types": "./dist/utils.d.ts"
+    },
+    "./errors": {
+      "import": "./dist/errors.js",
+      "require": "./dist/errors.js",
+      "types": "./dist/errors.d.ts"
+    }
+  },
   "files": [
     "dist"
   ],

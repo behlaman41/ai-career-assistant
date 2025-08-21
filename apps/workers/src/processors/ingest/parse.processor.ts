@@ -29,6 +29,18 @@ export class ParseProcessor {
       // Fetch document from storage
       const fileBuffer = await this.providers.storage.getObject(filePath);
 
+      // Guardrail: Check file size
+      if (fileBuffer.length > 10 * 1024 * 1024) {
+        // 10MB limit
+        throw new Error('File too large for parsing');
+      }
+
+      // Guardrail: Check supported MIME types
+      const supportedMimeTypes = ['text/plain', 'application/pdf', 'application/msword'];
+      if (!supportedMimeTypes.includes(mimeType)) {
+        throw new Error(`Unsupported MIME type: ${mimeType}`);
+      }
+
       // Parse document based on MIME type
       let content: string;
       if (mimeType === 'text/plain') {
@@ -37,7 +49,7 @@ export class ParseProcessor {
         // TODO: Implement PDF parsing with a proper library
         content = `PDF content extracted from ${filePath}`;
       } else {
-        content = `Unsupported file type: ${mimeType}`;
+        content = `Parsed content from ${filePath}`; // Stub for other types
       }
 
       // TODO: Save parsed content to database

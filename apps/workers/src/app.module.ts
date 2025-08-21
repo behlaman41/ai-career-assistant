@@ -4,6 +4,7 @@ import { BullModule } from '@nestjs/bull';
 import { ProvidersModule } from './providers/providers.module';
 import { AnalysisModule } from './processors/analysis/analysis.module';
 import { IngestModule } from './processors/ingest/ingest.module';
+import { SecurityModule } from './processors/security/security.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { IngestModule } from './processors/ingest/ingest.module';
     ProvidersModule,
     IngestModule,
     AnalysisModule,
+    SecurityModule,
   ],
 })
 export class AppModule {}
