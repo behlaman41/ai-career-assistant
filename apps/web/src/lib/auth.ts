@@ -4,6 +4,18 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+// Extend NextAuth types
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      role: 'USER' | 'ADMIN';
+    };
+    accessToken: string;
+  }
+}
+
 export interface SessionUser {
   id: string;
   email: string;
