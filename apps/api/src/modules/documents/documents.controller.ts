@@ -11,9 +11,9 @@ import { CreateUploadInitDto } from './dto/create-upload-init.dto';
 import { UploadInitResponseDto } from './dto/upload-init-response.dto';
 
 @ApiTags('documents')
-@Controller()
+@Controller('documents')
 @UseGuards(JwtAuthGuard)
-@Throttle({ default: { limit: 20, ttl: 900000 } })
+@Throttle({ uploads: { limit: 20, ttl: 900000 } })
 export class DocumentsController {
   constructor(private documentsService: DocumentsService) {}
 

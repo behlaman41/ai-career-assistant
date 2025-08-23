@@ -44,7 +44,8 @@ export class AuthService {
       },
     });
     await this.auditService.log(user.id, 'user_registered', { email: registerDto.email });
-    return this.createTokens(user.id, user.role);
+    const tokens = await this.createTokens(user.id, user.role);
+    return { ...tokens, id: user.id };
   }
 
   async login(loginDto: LoginDto) {
@@ -53,7 +54,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
     await this.auditService.log(user.id, 'user_login', { email: loginDto.email });
-    return this.createTokens(user.id, user.role);
+    const tokens = await this.createTokens(user.id, user.role);
+    return { ...tokens, id: user.id };
   }
 
   async refresh(refreshToken: string) {
@@ -86,11 +88,34 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  private parseTimeToMs(timeStr: string): number {
+    const match = timeStr.match(/^(\d+)([smhd])$/);
+    if (!match) {
+      return 7 * 24 * 60 * 60 * 1000; // Default to 7 days
+    }
+
+    const value = parseInt(match[1]);
+    const unit = match[2];
+
+    switch (unit) {
+      case 's':
+        return value * 1000;
+      case 'm':
+        return value * 60 * 1000;
+      case 'h':
+        return value * 60 * 60 * 1000;
+      case 'd':
+        return value * 24 * 60 * 60 * 1000;
+      default:
+        return 7 * 24 * 60 * 60 * 1000;
+    }
+  }
+
   private async generateRefreshToken(userId: string) {
     const token = randomBytes(64).toString('hex');
-    const expiresAt = new Date(
-      Date.now() + this.configService.get<number>('JWT_REFRESH_TTL', 7 * 24 * 60 * 60 * 1000),
-    );
+    const ttlStr = this.configService.get<string>('JWT_REFRESH_TTL', '7d');
+    const ttlMs = this.parseTimeToMs(ttlStr);
+    const expiresAt = new Date(Date.now() + ttlMs);
     await this.prisma.refreshToken.create({
       data: { userId, token, expiresAt },
     });

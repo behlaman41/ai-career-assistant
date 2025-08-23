@@ -21,7 +21,7 @@
     "db:generate": "pnpm --filter @ai-career/infra db:generate",
     "db:studio": "pnpm --filter @ai-career/infra db:studio",
     "seed": "pnpm --filter @ai-career/infra seed",
-    "docker:infra": "docker compose up -d db redis minio minio-setup",
+    "docker:infra": "docker compose up -d db redis minio minio-setup mailhog",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:clean": "docker compose down -v --remove-orphans && docker system prune -f",

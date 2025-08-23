@@ -26,6 +26,8 @@ export interface AnalysisJobData {
 export interface AVScanJobData {
   documentId: string;
   storageKey: string;
+  userId: string;
+  filename?: string;
 }
 
 @Injectable()

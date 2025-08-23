@@ -44,7 +44,7 @@ describe('AuthController', () => {
   describe('register', () => {
     it('should register a new user', async () => {
       const registerDto = { email: 'test@example.com', password: 'password' };
-      const tokens = { accessToken: 'access', refreshToken: 'refresh' };
+      const tokens = { id: 'user-id', accessToken: 'access', refreshToken: 'refresh' };
       authService.register.mockResolvedValue(tokens);
 
       const result = await controller.register(registerDto);
@@ -56,7 +56,7 @@ describe('AuthController', () => {
   describe('login', () => {
     it('should login user', async () => {
       const loginDto = { email: 'test@example.com', password: 'password' };
-      const tokens = { accessToken: 'access', refreshToken: 'refresh' };
+      const tokens = { id: 'user-id', accessToken: 'access', refreshToken: 'refresh' };
       authService.login.mockResolvedValue(tokens);
 
       const result = await controller.login(loginDto);
@@ -68,7 +68,7 @@ describe('AuthController', () => {
   describe('refresh', () => {
     it('should refresh tokens', async () => {
       const refreshToken = 'validRefreshToken';
-      const tokens = { accessToken: 'newAccess', refreshToken: 'newRefresh' };
+      const tokens = { id: 'user-id', accessToken: 'newAccess', refreshToken: 'newRefresh' };
       authService.refresh.mockResolvedValue(tokens);
 
       const result = await controller.refresh(refreshToken);

@@ -2,6 +2,7 @@ import { Processor, Process } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Job } from 'bull';
 import { ProviderRegistry } from '@ai-career/providers';
+import { ErrorFactory } from '@ai-career/shared';
 import { WorkerLogger } from '../../common/logging/worker-logger';
 
 interface EmbedJobData {
@@ -32,13 +33,13 @@ export class EmbedProcessor {
     try {
       // Guardrail: Check for missing content
       if (!content || content.trim() === '') {
-        throw new Error('Missing or empty content for embedding');
+        throw ErrorFactory.missingParse('content for embedding');
       }
 
       // Guardrail: Check content length
       if (content.length > 8192) {
         // Example limit, adjust as needed
-        throw new Error('Content too large for embedding');
+        throw ErrorFactory.inputTooLarge('8KB', `${Math.round(content.length / 1024)}KB`);
       }
 
       // Generate embedding using the embedding provider

@@ -4,6 +4,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { RunStatus, Prisma } from '@prisma/client';
 import { z } from 'zod';
 
+import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { QueuesService } from '../queues/queues.service';
 
@@ -12,6 +13,7 @@ export class RunsService {
   constructor(
     private prisma: PrismaService,
     private queues: QueuesService,
+    private auditService: AuditService,
   ) {}
 
   async create(userId: string, createRunDto: CreateRun) {
@@ -61,6 +63,12 @@ export class RunsService {
       resumeVersionId: run.resumeVersionId,
     });
 
+    await this.auditService.log(userId, 'run_created', {
+      runId: run.id,
+      jdId: run.jdId,
+      resumeVersionId: run.resumeVersionId,
+    });
+
     return run;
   }
 
@@ -105,18 +113,38 @@ export class RunsService {
   }
 
   async updateStatus(id: string, status: RunStatus, startedAt?: Date, finishedAt?: Date) {
+    const run = await this.prisma.run.findUnique({ where: { id } });
+    if (!run) {
+      throw new NotFoundException('Run not found');
+    }
+
     const data: { status: RunStatus; startedAt?: Date; finishedAt?: Date } = { status };
     if (startedAt) data.startedAt = startedAt;
     if (finishedAt) data.finishedAt = finishedAt;
 
-    return this.prisma.run.update({
+    const updatedRun = await this.prisma.run.update({
       where: { id },
       data,
     });
+
+    await this.auditService.log(run.userId, 'run_status_updated', {
+      runId: id,
+      oldStatus: run.status,
+      newStatus: status,
+      startedAt,
+      finishedAt,
+    });
+
+    return updatedRun;
   }
 
   async addOutput(runId: string, type: string, json: Prisma.InputJsonValue, storageKey?: string) {
-    return this.prisma.runOutput.create({
+    const run = await this.prisma.run.findUnique({ where: { id: runId } });
+    if (!run) {
+      throw new NotFoundException('Run not found');
+    }
+
+    const output = await this.prisma.runOutput.create({
       data: {
         runId,
         type: type as z.infer<typeof RunOutputTypeEnum>,
@@ -124,5 +152,14 @@ export class RunsService {
         storageKey,
       },
     });
+
+    await this.auditService.log(run.userId, 'run_output_added', {
+      runId,
+      outputId: output.id,
+      outputType: type,
+      hasStorageKey: !!storageKey,
+    });
+
+    return output;
   }
 }

@@ -25,4 +25,21 @@ export class AuditService {
       skip,
     });
   }
+
+  async findAll(take: number = 50, skip: number = 0, userId?: string): Promise<AuditLog[]> {
+    return this.prisma.auditLog.findMany({
+      where: userId ? { userId } : undefined,
+      orderBy: { createdAt: 'desc' },
+      take,
+      skip,
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
 }

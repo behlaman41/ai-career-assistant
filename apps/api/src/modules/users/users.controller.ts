@@ -1,13 +1,28 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  NotFoundException,
+  UseGuards,
+  Req,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
-import { User } from '@prisma/client';
+import { User, Role } from '@prisma/client';
 
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { RolesGuard, Roles } from '../auth/guards/roles.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
 @Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -16,7 +31,13 @@ export class UsersController {
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'User retrieved successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async findOne(@Param('id') id: string): Promise<User> {
+  @ApiResponse({ status: 403, description: 'Access denied' })
+  async findOne(@Param('id') id: string, @Req() req: any): Promise<User> {
+    // Users can only access their own profile
+    if (req.user.id !== id) {
+      throw new ForbiddenException('You can only access your own profile');
+    }
+
     const user = await this.usersService.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -25,10 +46,12 @@ export class UsersController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create user', description: 'Create a new user account' })
+  @Roles('admin' as Role)
+  @ApiOperation({ summary: 'Create user (Admin only)', description: 'Create a new user account' })
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({ status: 201, description: 'User created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid request data' })
+  @ApiResponse({ status: 403, description: 'Admin access required' })
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
   }
@@ -39,7 +62,17 @@ export class UsersController {
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<User> {
+  @ApiResponse({ status: 403, description: 'Access denied' })
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: any,
+  ): Promise<User> {
+    // Users can only update their own profile
+    if (req.user.id !== id) {
+      throw new ForbiddenException('You can only update your own profile');
+    }
+
     const user = await this.usersService.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -55,7 +88,13 @@ export class UsersController {
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async remove(@Param('id') id: string): Promise<User> {
+  @ApiResponse({ status: 403, description: 'Access denied' })
+  async remove(@Param('id') id: string, @Req() req: any): Promise<User> {
+    // Users can only delete their own account
+    if (req.user.id !== id) {
+      throw new ForbiddenException('You can only delete your own account');
+    }
+
     const user = await this.usersService.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');

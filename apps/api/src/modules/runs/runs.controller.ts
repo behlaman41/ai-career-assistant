@@ -1,6 +1,8 @@
-import { Controller, Get, Post, Body, Param, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Request, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { Request as ExpressRequest } from 'express';
+
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 
 import { RunsService } from './runs.service';
 
@@ -11,6 +13,7 @@ class CreateRunDto {
 
 @ApiTags('runs')
 @Controller('runs')
+@UseGuards(JwtAuthGuard)
 export class RunsController {
   constructor(private readonly runsService: RunsService) {}
 

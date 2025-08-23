@@ -42,14 +42,40 @@ import { UsersModule } from './users/users.module';
     }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: () => ({
-        throttlers: [
-          {
-            ttl: 900,
-            limit: 100,
-          },
-        ],
-      }),
+      useFactory: () => {
+        const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379/0';
+        let redisConfig;
+
+        try {
+          const { hostname, port } = new URL(redisUrl);
+          redisConfig = { host: hostname, port: parseInt(port || '6379') };
+        } catch {
+          redisConfig = { host: 'localhost', port: 6379 };
+        }
+
+        return {
+          throttlers: [
+            {
+              name: 'default',
+              ttl: parseInt(process.env.RATE_LIMIT_WINDOW || '900000'), // 15 minutes
+              limit: parseInt(process.env.RATE_LIMIT_MAX || '100'),
+            },
+            {
+              name: 'auth',
+              ttl: 900000, // 15 minutes
+              limit: 20,
+            },
+            {
+              name: 'uploads',
+              ttl: 900000, // 15 minutes
+              limit: 20,
+            },
+          ],
+          storage: new (require('@nest-lab/throttler-storage-redis').ThrottlerStorageRedisService)(
+            redisConfig,
+          ),
+        };
+      },
     }),
     PrismaModule,
     ProvidersModule,

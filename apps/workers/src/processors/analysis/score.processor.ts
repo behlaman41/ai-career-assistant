@@ -2,6 +2,7 @@ import { Processor, Process } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Job } from 'bull';
 import { ProviderRegistry } from '@ai-career/providers';
+import { ErrorFactory } from '@ai-career/shared';
 import { WorkerLogger } from '../../common/logging/worker-logger';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -41,19 +42,22 @@ export class ScoreProcessor {
 
       // Guardrail: Check for missing parsedJson
       if (!jd || !jd.parsedJson) {
-        throw new Error('Missing parsed JSON for job description');
+        throw ErrorFactory.missingParse('job description');
       }
       if (!resumeVersion || !resumeVersion.parsedJson) {
-        throw new Error('Missing parsed JSON for resume version');
+        throw ErrorFactory.missingParse('resume version');
       }
 
       // Guardrail: Check input size
       const maxSize = 100000; // e.g., 100KB
-      if (
-        JSON.stringify(jd.parsedJson).length > maxSize ||
-        JSON.stringify(resumeVersion.parsedJson).length > maxSize
-      ) {
-        throw new Error('Input too large for analysis');
+      const jdSize = JSON.stringify(jd.parsedJson).length;
+      const resumeSize = JSON.stringify(resumeVersion.parsedJson).length;
+
+      if (jdSize > maxSize) {
+        throw ErrorFactory.inputTooLarge('100KB', `${Math.round(jdSize / 1024)}KB`);
+      }
+      if (resumeSize > maxSize) {
+        throw ErrorFactory.inputTooLarge('100KB', `${Math.round(resumeSize / 1024)}KB`);
       }
 
       const jobDescription = JSON.stringify(jd.parsedJson);

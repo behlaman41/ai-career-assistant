@@ -113,6 +113,12 @@ ai-career-assistant/
    - Used for: File storage (resumes, job descriptions)
    - Credentials: `minioadmin/minioadmin`
 
+4. **MailHog Email Testing** (`mailhog`)
+   - SMTP Port: `1025`
+   - Web UI Port: `8025`
+   - Used for: Development email testing (magic links)
+   - Access: http://localhost:8025
+
 ### Application Services
 
 1. **API Server** (`apps/api`)
@@ -223,11 +229,16 @@ GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # Email Configuration (for magic links)
-EMAIL_SERVER_HOST=smtp.gmail.com
-EMAIL_SERVER_PORT=587
-EMAIL_SERVER_USER=your-email@gmail.com
-EMAIL_SERVER_PASSWORD=your-app-password
-EMAIL_FROM=noreply@yourapp.com
+# Development: Uses MailHog for email testing
+EMAIL_SERVER_HOST=mailhog
+EMAIL_SERVER_PORT=1025
+EMAIL_FROM=noreply@local.test
+# Production: Use real SMTP server
+# EMAIL_SERVER_HOST=smtp.gmail.com
+# EMAIL_SERVER_PORT=587
+# EMAIL_SERVER_USER=your-email@gmail.com
+# EMAIL_SERVER_PASSWORD=your-app-password
+# EMAIL_FROM=noreply@yourapp.com
 ```
 
 #### Rate Limiting & Security

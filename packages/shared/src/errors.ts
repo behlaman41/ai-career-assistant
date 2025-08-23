@@ -12,6 +12,7 @@ export enum ErrorCode {
   INVALID_INPUT = 'INVALID_INPUT',
   MISSING_REQUIRED_FIELD = 'MISSING_REQUIRED_FIELD',
   INVALID_FORMAT = 'INVALID_FORMAT',
+  ERR_INPUT_TOO_LARGE = 'ERR_INPUT_TOO_LARGE',
 
   // Resources
   RESOURCE_NOT_FOUND = 'RESOURCE_NOT_FOUND',
@@ -34,6 +35,9 @@ export enum ErrorCode {
   SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
   DATABASE_ERROR = 'DATABASE_ERROR',
   EXTERNAL_SERVICE_ERROR = 'EXTERNAL_SERVICE_ERROR',
+
+  // Processing & Parsing
+  ERR_MISSING_PARSE = 'ERR_MISSING_PARSE',
 
   // Business Logic
   INSUFFICIENT_PERMISSIONS = 'INSUFFICIENT_PERMISSIONS',
@@ -151,5 +155,21 @@ export const ErrorFactory = {
       message: `Virus detected in file: ${filename}`,
       statusCode: 400,
       details: { filename },
+    }),
+
+  missingParse: (resource: string, message?: string): AppError =>
+    new AppError({
+      code: ErrorCode.ERR_MISSING_PARSE,
+      message: message || `Missing parsed content for ${resource}`,
+      statusCode: 422,
+      details: { resource },
+    }),
+
+  inputTooLarge: (maxSize: string | number, actualSize?: string | number): AppError =>
+    new AppError({
+      code: ErrorCode.ERR_INPUT_TOO_LARGE,
+      message: `Input size exceeds maximum allowed size of ${maxSize}`,
+      statusCode: 413,
+      details: { maxSize, actualSize },
     }),
 };

@@ -2,6 +2,7 @@ import { Processor, Process } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Job } from 'bull';
 import { ProviderRegistry } from '@ai-career/providers';
+import { ErrorFactory } from '@ai-career/shared';
 import { WorkerLogger } from '../../common/logging/worker-logger';
 
 interface ParseJobData {
@@ -32,13 +33,16 @@ export class ParseProcessor {
       // Guardrail: Check file size
       if (fileBuffer.length > 10 * 1024 * 1024) {
         // 10MB limit
-        throw new Error('File too large for parsing');
+        throw ErrorFactory.inputTooLarge(
+          '10MB',
+          `${Math.round(fileBuffer.length / 1024 / 1024)}MB`,
+        );
       }
 
       // Guardrail: Check supported MIME types
       const supportedMimeTypes = ['text/plain', 'application/pdf', 'application/msword'];
       if (!supportedMimeTypes.includes(mimeType)) {
-        throw new Error(`Unsupported MIME type: ${mimeType}`);
+        throw ErrorFactory.invalidFileType(supportedMimeTypes);
       }
 
       // Parse document based on MIME type

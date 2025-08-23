@@ -2,14 +2,18 @@ import { CreateResume, CreateResumeVersion } from '@ai-career/shared';
 import { assertOwnership } from '@ai-career/shared/policies';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ResumesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private auditService: AuditService,
+  ) {}
 
   async create(userId: string, createResumeDto: CreateResume) {
-    return this.prisma.resume.create({
+    const resume = await this.prisma.resume.create({
       data: {
         userId,
         title: createResumeDto.title,
@@ -19,6 +23,14 @@ export class ResumesService {
         versions: true,
       },
     });
+
+    await this.auditService.log(userId, 'resume_created', {
+      resumeId: resume.id,
+      title: resume.title,
+      sourceDocumentId: resume.sourceDocumentId,
+    });
+
+    return resume;
   }
 
   async findByUser(userId: string) {
@@ -76,19 +88,28 @@ export class ResumesService {
 
     // Note: fromRunId logic would be implemented when Run model is complete
 
-    return this.prisma.resumeVersion.create({
+    const version = await this.prisma.resumeVersion.create({
       data,
       include: {
         document: true,
       },
     });
+
+    await this.auditService.log(userId, 'resume_version_created', {
+      resumeId,
+      versionId: version.id,
+      label,
+      documentId: createVersionDto.documentId,
+    });
+
+    return version;
   }
 
   async update(id: string, userId: string, updateData: Partial<CreateResume>) {
     const resume = await this.findById(id, userId);
     assertOwnership(userId, resume.userId);
 
-    return this.prisma.resume.update({
+    const updatedResume = await this.prisma.resume.update({
       where: { id },
       data: updateData,
       include: {
@@ -97,14 +118,28 @@ export class ResumesService {
         },
       },
     });
+
+    await this.auditService.log(userId, 'resume_updated', {
+      resumeId: id,
+      changes: updateData,
+    });
+
+    return updatedResume;
   }
 
   async delete(id: string, userId: string) {
     const resume = await this.findById(id, userId);
     assertOwnership(userId, resume.userId);
 
-    return this.prisma.resume.delete({
+    const deletedResume = await this.prisma.resume.delete({
       where: { id },
     });
+
+    await this.auditService.log(userId, 'resume_deleted', {
+      resumeId: id,
+      title: resume.title,
+    });
+
+    return deletedResume;
   }
 }

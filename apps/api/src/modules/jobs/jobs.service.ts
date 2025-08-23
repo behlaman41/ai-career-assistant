@@ -2,14 +2,18 @@ import { CreateJob } from '@ai-career/shared';
 import { assertOwnership } from '@ai-career/shared/policies';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class JobsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private auditService: AuditService,
+  ) {}
 
   async create(userId: string, createJobDto: CreateJob) {
-    return this.prisma.jobDescription.create({
+    const job = await this.prisma.jobDescription.create({
       data: {
         userId,
         title: createJobDto.title,
@@ -21,6 +25,15 @@ export class JobsService {
         sourceDocument: true,
       },
     });
+
+    await this.auditService.log(userId, 'job_created', {
+      jobId: job.id,
+      title: job.title,
+      company: job.company,
+      sourceDocumentId: job.sourceDocumentId,
+    });
+
+    return job;
   }
 
   async findByUser(userId: string) {
@@ -62,21 +75,36 @@ export class JobsService {
     if (updateData.company) data.company = updateData.company;
     if (updateData.documentId) data.sourceDocumentId = updateData.documentId;
 
-    return this.prisma.jobDescription.update({
+    const updatedJob = await this.prisma.jobDescription.update({
       where: { id },
       data,
       include: {
         sourceDocument: true,
       },
     });
+
+    await this.auditService.log(userId, 'job_updated', {
+      jobId: id,
+      changes: updateData,
+    });
+
+    return updatedJob;
   }
 
   async delete(id: string, userId: string) {
     const job = await this.findById(id, userId);
     assertOwnership(userId, job.userId);
 
-    return this.prisma.jobDescription.delete({
+    const deletedJob = await this.prisma.jobDescription.delete({
       where: { id },
     });
+
+    await this.auditService.log(userId, 'job_deleted', {
+      jobId: id,
+      title: job.title,
+      company: job.company,
+    });
+
+    return deletedJob;
   }
 }

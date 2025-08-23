@@ -16,7 +16,7 @@ interface LoginDto {
 }
 
 @Controller('auth')
-@Throttle({ default: { limit: 20, ttl: 900000 } })
+@Throttle({ auth: { limit: 20, ttl: 900000 } })
 export class AuthController {
   constructor(private authService: AuthService) {}
 
