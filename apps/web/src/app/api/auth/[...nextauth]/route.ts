@@ -1,20 +1,14 @@
 import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import EmailProvider from 'next-auth/providers/email';
 import GoogleProvider from 'next-auth/providers/google';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { PrismaClient } from '@prisma/client';
 import axios from 'axios';
 import type { JWT } from 'next-auth/jwt';
 import type { Session, User } from 'next-auth';
-
-const prisma = new PrismaClient();
 
 // Feature flags
 const GOOGLE_OAUTH_ENABLED = process.env.GOOGLE_OAUTH_ENABLED === 'true';
 
 export const authOptions: AuthOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -48,17 +42,6 @@ export const authOptions: AuthOptions = {
           return null;
         }
       },
-    }),
-    EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST || 'localhost',
-        port: parseInt(process.env.EMAIL_SERVER_PORT || '1025'),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER || '',
-          pass: process.env.EMAIL_SERVER_PASSWORD || '',
-        },
-      },
-      from: process.env.EMAIL_FROM || 'noreply@local.test',
     }),
     ...(GOOGLE_OAUTH_ENABLED
       ? [
